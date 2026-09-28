@@ -1,0 +1,113 @@
+{% load catalog_tags %}{# Port of render_course_filter_bar() (inc/custom-shop.php) #}
+<form method="GET" action="{{ site_url }}/shop/" class="shop-filter-form">
+        {% if current_mode != "" %}<input type="hidden" name="is_online" value="{{ current_mode }}">
+        {% endif %}<div class="shop-filter-group">
+            <label for="filter_reference">Filter by Course</label>
+            <select name="reference" id="filter_reference" class="no-selectpicker">
+                <option value="">Select Course</option>
+                {% for slug, name in references %}<option value="{{ slug }}" {% if current_reference == slug %} selected='selected'{% endif %}>
+                        {{ name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="shop-filter-group">
+            <label for="filter_venue">Filter by Venue</label>
+            <select name="venue" id="filter_venue" class="no-selectpicker">
+                <option value="">Select Venue</option>
+                {% for venue in venues %}<option value="{{ venue }}" {% if current_venue == venue %} selected='selected'{% endif %}>
+                        {{ venue }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="shop-filter-group">
+            <label for="filter_from">From</label>
+            <input type="text" name="from" id="filter_from" class="shop-date-input js-date-picker" value="{{ current_date }}"
+                min="{{ tomorrow }}" autocomplete="off" placeholder="Select date">
+        </div>
+
+        <div class="shop-filter-actions">
+            <button type="submit">Filter Results</button>
+        </div>
+    </form>
+    {% deferscript %}
+        document.addEventListener('DOMContentLoaded', function () {
+            var refSelect = document.getElementById('filter_reference');
+            var venueSelect = document.getElementById('filter_venue');
+            var fromInput = document.getElementById('filter_from');
+            var refVenueMap = {{ ref_venue_map_json|safe }};
+            var venueLabels = {{ venue_labels_json|safe }};
+
+            function toTs(value) {
+                if (!value) {
+                    return 0;
+                }
+                var ts = new Date(value).getTime();
+                return isNaN(ts) ? 0 : ts / 1000;
+            }
+
+            function hasFutureDates(list, fromTs) {
+                if (!list || !list.length) {
+                    return false;
+                }
+
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i] >= fromTs) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            function rebuildVenues() {
+                if (!refSelect || !venueSelect) {
+                    return;
+                }
+
+                var selectedRef = refSelect.value;
+                var fromTs = fromInput ? toTs(fromInput.value) : 0;
+                var currentValue = venueSelect.value;
+                var allowed = {};
+
+                if (selectedRef && refVenueMap[selectedRef]) {
+                    Object.keys(refVenueMap[selectedRef]).forEach(function (venue) {
+                        if (hasFutureDates(refVenueMap[selectedRef][venue], fromTs)) {
+                            allowed[venue] = true;
+                        }
+                    });
+                } else {
+                    venueLabels.forEach(function (venue) {
+                        allowed[venue] = true;
+                    });
+                }
+
+                Array.prototype.slice.call(venueSelect.options).forEach(function (option, index) {
+                    if (index === 0) {
+                        option.hidden = false;
+                        option.disabled = false;
+                        return;
+                    }
+
+                    var ok = !!allowed[option.value];
+                    option.hidden = !ok;
+                    option.disabled = !ok;
+                });
+
+                if (currentValue && venueSelect.querySelector('option[value="' + currentValue.replace(/"/g, '\\"') + '"]') && venueSelect.querySelector('option[value="' + currentValue.replace(/"/g, '\\"') + '"]').disabled) {
+                    venueSelect.value = '';
+                }
+            }
+
+            if (refSelect && venueSelect) {
+                refSelect.addEventListener('change', rebuildVenues);
+                if (fromInput) {
+                    fromInput.addEventListener('change', rebuildVenues);
+                }
+                rebuildVenues();
+            }
+        });
+{% enddeferscript %}

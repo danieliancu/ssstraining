@@ -1,0 +1,42 @@
+<table class="shop_table woocommerce-checkout-review-order-table">
+	<thead>
+		<tr>
+			<th class="product-name">Product</th>
+			<th class="product-total">Subtotal</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for line in totals.lines %}				<tr class="cart_item">
+					<td class="product-name">
+						{{ line.product.title }}&nbsp;						 <strong class="product-quantity">&times;&nbsp;{{ line.quantity }}</strong>											</td>
+					<td class="product-total">
+						{{ line.subtotal|wc_price }}					</td>
+				</tr>
+		{% endfor %}			</tbody>
+	<tfoot>
+		<tr class="cart-subtotal">
+			<th>Subtotal</th>
+			<td>{{ display_subtotal|wc_price }}</td>
+		</tr>
+		{% for code, amount, tax in totals.discounts %}
+			<tr class="cart-discount coupon-{{ code }}">
+				<th>Coupon: {{ code }}</th>
+				<td>-{{ amount|wc_price }} <a href="{{ site_url }}/checkout-2/?remove_coupon={{ code }}" class="woocommerce-remove-coupon" data-coupon="{{ code }}">[Remove]</a></td>
+			</tr>
+		{% endfor %}
+		{% for name, amount, tax in totals.fees %}
+			<tr class="fee">
+				<th>{{ name }}</th>
+				<td>{% if name == dl_fee_name %}<span data-sst-hide-row="nebosh-dl"></span>{% else %}{{ amount|wc_price }}{% endif %}</td>
+			</tr>
+		{% endfor %}
+														<tr class="tax-rate tax-rate-gb-vat-1">
+						<th>VAT</th>
+						<td>{{ totals.tax_total|wc_price:False }}</td>
+					</tr>
+		<tr class="order-total">
+			<th>Total</th>
+			<td><strong>{{ totals.total|wc_price }}</strong> </td>
+		</tr>
+	</tfoot>
+</table>

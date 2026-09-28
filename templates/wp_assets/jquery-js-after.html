@@ -1,0 +1,11 @@
+<script id="jquery-js-after">
+jQuery(document).on('click', '.tz-mmc-modal-btn', function(e) {
+                e.preventDefault();
+                jQuery(this).closest('.tz-mmc-modal-overlay').hide();
+            });
+            jQuery(document).on('change', '.tz-mmc-courseplus-checkbox', function() {
+                jQuery('body').trigger('update_checkout');
+            });
+        
+//# sourceURL=jquery-js-after
+</script>

@@ -1,0 +1,41 @@
+{% extends "base.html" %}{% load exampapers_tags %}
+{# Page template "exam_papers": page.php layout + the exam-papers-manager listing #}
+{% block content %}
+<div class="container-fluid breadcrumb-container">
+	<div class="container">
+		<div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+             	<div class="header-breadcrumb archive-breadcrumb">
+                   	{% breadcrumbs %}
+                </div>
+            </div>
+    	</div>
+	</div>
+</div>
+
+<div class="container-fluid archive-top-block">
+	<div class="container">
+		<div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <h1 class="page-title-main">
+                    <b>{{ page.title|texturize }}</b>
+                </h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid standard-post reduce-header">
+	<div class="container">
+        <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    	<article class="standard-post-content no-sidebar">
+							{% exam_papers_body page %}
+                        </article>
+                    </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_footer %}{% exam_papers_css %}{% endblock %}

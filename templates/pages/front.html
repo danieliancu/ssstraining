@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/front-page.php #}
+{% block critical_head %}{% include "pages/front/critical_head.html" %}{% endblock %}
+{% block dns_prefetch %}<link rel='dns-prefetch' href='//widget.reviews.co.uk' />
+<link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
+<link rel='dns-prefetch' href='//cdn.jsdelivr.net' />
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+<link rel='dns-prefetch' href='//assets.reviews.io' />{% endblock %}
+{% block content %}
+<div id="primary" class="content-area">
+	<main id="main" class="site-main" role="main">
+		{% include "pages/front/hero.html" %}
+	</main><!-- #main -->
+</div><!-- #primary -->
+
+<section class="reviews-area">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2 style="text-align: center; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #0a1f44; margin-bottom: 40px; margin-top: 0;">What our customers say</h2>
+                <script defer src="https://widget.reviews.co.uk/carousel-inline-iframeless/dist.js?_t=2022031413"></script>
+                <div id="reviewsio-carousel-widget"></div>
+                {% deferscript %}
+{% include "pages/front/reviews_script.js.html" %}{% enddeferscript %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section style="background:#57b8ff; padding:30px 0; margin-bottom:60px;">
+    <div class="container">
+        <div style="max-width:720px; margin:0 auto; text-align:center;">
+            <h2 style="color:#fff; font-size:28px; font-weight:700; margin-top:0; margin-bottom:20px;">
+                NEBOSH Distance Learning
+            </h2>
+            <p style="color:#fff; font-size:16px; line-height:1.7; margin-bottom:32px;">
+                Our NEBOSH distance learning courses allow you to study at your own pace from anywhere in the world. With full tutor support and structured study materials, you can achieve your NEBOSH qualification without attending a classroom. Enrolment is open at any time — start when it suits you.
+            </p>
+            <a href="{{ site_url }}{{ nebosh_dl_cta_url }}"
+               style="display:inline-block; background:#fff; color:#57b8ff; font-weight:700; font-size:15px; padding:14px 36px; border-radius:4px; text-decoration:none;">
+                Find Out More
+            </a>
+        </div>
+    </div>
+</section>
+
+{% include "pages/front/popular_courses.html" %}
+
+{% include "pages/front/logos.html" %}
+
+{% include "pages/front/bottom_tabs.html" %}
+
+{% include "pages/front/trusted_carousel.html" %}
+{% endblock %}

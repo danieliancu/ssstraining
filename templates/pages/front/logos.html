@@ -1,0 +1,11 @@
+{# Port of template-parts/page/content-front-page-logos.php #}
+<div class="course-logos-section">
+    <div class="container">
+        <div class="course-logos-row">
+            {% for logo in course_logos %}
+                    <img src="/static/wp/wp-content/themes/twentyseventeen-child/assets/images/logos/{{ logo.file|urlencode }}"
+                        alt="{{ logo.name }}" class="course-top-logo">
+            {% endfor %}
+        </div>
+    </div>
+</div>

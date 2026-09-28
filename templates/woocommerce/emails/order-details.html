@@ -1,0 +1,42 @@
+<h2>{% if is_admin %}<a class="link" href="{{ site_url }}/admin/orders/order/{{ order.pk }}/change/">[Order #{{ order.number }}]</a>{% else %}[Order #{{ order.number }}]{% endif %} ({{ order.created_at|wp_date:"F j, Y" }})</h2>
+<div style="margin-bottom: 40px;">
+	<table class="td" cellspacing="0" cellpadding="6" border="1" style="width: 100%; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
+		<thead>
+			<tr>
+				<th class="td" scope="col">Product</th>
+				<th class="td" scope="col">Quantity</th>
+				<th class="td" scope="col">Price</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in order.items.all %}<tr class="order_item">
+				<td class="td">{{ item.name }}</td>
+				<td class="td">{{ item.quantity }}</td>
+				<td class="td">{{ item.line_subtotal|wc_price:False }}</td>
+			</tr>{% endfor %}
+		</tbody>
+		<tfoot>
+			{% for row in totals %}<tr>
+				<th class="td" scope="row" colspan="2" style="text-align:left;{% if forloop.first %} border-top-width: 4px;{% endif %}">{{ row.label }}</th>
+				<td class="td" style="text-align:left;{% if forloop.first %} border-top-width: 4px;{% endif %}">{{ row.value }}</td>
+			</tr>{% endfor %}
+			{% if order.customer_note %}<tr>
+				<th class="td" scope="row" colspan="2" style="text-align:left;">Note:</th>
+				<td class="td" style="text-align:left;">{{ order.customer_note|linebreaksbr }}</td>
+			</tr>{% endif %}
+		</tfoot>
+	</table>
+</div>
+{% if delegates and delegate_fields %}<h2>Delegate Details</h2><table cellspacing="0" cellpadding="6" style="width:100%;border-collapse:collapse;" border="1"><thead><tr><th scope="col" style="text-align:left;">#</th>{% for key, conf in delegate_fields.items %}<th scope="col" style="text-align:left;">{{ conf.label|default:key|capfirst }}</th>{% endfor %}<th scope="col" style="text-align:left;">Course Plus</th></tr></thead><tbody>{% for d in delegates %}<tr><td>{{ forloop.counter }}</td>{% for key, conf in delegate_fields.items %}<td>{% if key == "name" %}{{ d.name }}{% elif key == "email" %}{{ d.email }}{% elif key == "phone" %}{{ d.phone }}{% else %}{{ d.extra|get:key }}{% endif %}</td>{% endfor %}<td>No</td></tr>{% endfor %}</tbody></table>{% endif %}
+<table id="addresses" cellspacing="0" cellpadding="0" style="width: 100%; vertical-align: top; margin-bottom: 40px; padding:0;" border="0">
+	<tr>
+		<td style="text-align:left; border:0; padding:0;" valign="top" width="50%">
+			<h2>Billing address</h2>
+			<address class="address">
+				{{ order.billing_first_name }} {{ order.billing_last_name }}<br>{{ order.billing_address_1 }}{% if order.billing_address_2 %}<br>{{ order.billing_address_2 }}{% endif %}<br>{{ order.billing_city }}{% if order.billing_state %}<br>{{ order.billing_state }}{% endif %}<br>{{ order.billing_postcode }}
+				{% if order.billing_phone %}<br/><a href="tel:{{ order.billing_phone }}">{{ order.billing_phone }}</a>{% endif %}
+				<br/>{{ order.billing_email }}
+			</address>
+		</td>
+	</tr>
+</table>

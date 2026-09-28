@@ -1,0 +1,30 @@
+{# Port of template-parts/post/content-news.php #}
+<article class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+    <div class="article-container">
+        <h3 class="post-title" title="{{ item.obj.title|texturize }}">
+            <a href="{{ item.obj.get_absolute_url }}">
+                {{ item.short_title }}
+            </a>
+        </h3>
+
+        <div class="news-post" id="news-post-{{ item.obj.wp_id|default:item.obj.pk }}">
+            <a href="{{ item.obj.get_absolute_url }}" class="post-thumbnail-outer">
+            <div class="post-thumbnail-outer">
+                {% if item.obj.featured_image %}
+                <img class="vertical" src="{{ item.obj.featured_image|media_url:'news-post' }}" alt="{{ item.obj.title|texturize }}" />
+                {% else %}
+                    <div class="vertical missing-img title">
+                        Sorry, we don't currently have an image for this post
+                    </div>
+                {% endif %}
+            </div>
+            </a>
+
+            <div class="post-content">
+                <div class="content-inner">
+                    <a href="{{ item.obj.get_absolute_url }}" class="cta-button">Read more</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>

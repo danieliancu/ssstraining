@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load catalog_tags %}
+{# Port of WooCommerce single-product.php / content-single-product.php with the theme's hooks #}
+{% block footer_markup %}{% include "catalog/footer_markup.html" with photoswipe=True %}{% endblock %}
+{% block content %}
+{% include "catalog/wc_wrapper_start.html" %}<nav class="woocommerce-breadcrumb" aria-label="Breadcrumb"><a href="{{ site_url }}">Home</a>&nbsp;&#47;&nbsp;{% if primary_category %}<a href="{{ site_url }}{{ primary_category.get_absolute_url }}">{{ primary_category.name }}</a>&nbsp;&#47;&nbsp;{% endif %}{{ product.title|texturize }}</nav>
+					<div class="woocommerce-notices-wrapper"></div><div id="product-{{ product.wp_id|default:product.pk }}" class="{% product_classes product 0 %}">
+
+	{% if product.on_sale %}<span class="onsale">Sale!</span>
+	{% endif %}<div class="summary entry-summary">
+		<h1 class="product_title entry-title">{{ product.title|texturize }}</h1><p class="price">{{ product|wc_price_html }}</p>
+{% if product.short_description %}<div class="woocommerce-product-details__short-description">
+	{{ product.short_description|texturize|wpautop }}
+</div>
+{% endif %}{% if product.is_purchasable %}{% if product.manage_stock and product.stock_qty is not None %}{% if product.in_stock %}<p class="stock in-stock">{{ product.stock_qty }} in stock</p>{% else %}<p class="stock out-of-stock">Out of stock</p>{% endif %}
+{% elif not product.in_stock %}<p class="stock out-of-stock">Out of stock</p>
+{% endif %}{% if product.in_stock %}
+	<form class="cart" action="{{ site_url }}{{ product.get_absolute_url }}" method="post" enctype='multipart/form-data'>
+		<div class="quantity">
+		<label class="screen-reader-text" for="{{ qty_id }}">{{ product.title }} quantity</label>
+	<input
+		type="{% if max_qty == 1 %}hidden{% else %}number{% endif %}"
+		{% if max_qty == 1 %}readonly="readonly"{% endif %}
+		id="{{ qty_id }}"
+		class="input-text qty text"
+		name="quantity"
+		value="1"
+		aria-label="Product quantity"
+				min="1"
+		{% if max_qty %}max="{{ max_qty }}"
+		{% endif %}{% if max_qty != 1 %}step="1"
+			placeholder=""
+			inputmode="numeric"
+			autocomplete="off"
+		{% endif %}/>
+		</div>
+
+		<button type="submit" name="add-to-cart" value="{{ product.pk }}" class="single_add_to_cart_button button alt">Add to basket</button>
+
+			</form>
+
+	{% endif %}{% endif %}<div class="product_meta">
+
+	
+	{% if product.sku %}<span class="sku_wrapper">SKU: <span class="sku">{{ product.sku }}</span></span>
+
+	{% endif %}{% if categories %}<span class="posted_in">{{ categories|length|pluralize:"Category:,Categories:" }} {% for c in categories %}<a href="{{ site_url }}{{ c.get_absolute_url }}" rel="tag">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</span>
+	{% endif %}{% if tags %}<span class="tagged_as">{{ tags|length|pluralize:"Tag:,Tags:" }} {% for t in tags %}<a href="{{ site_url }}{{ t.get_absolute_url }}" rel="tag">{{ t.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</span>
+	{% endif %}
+</div>
+	</div>
+
+	{% if related %}<section class="related products">
+
+					<h2>Related courses</h2>
+				<ul class="products columns-4">
+
+			{% for p in related %}{% include "catalog/loop_product.html" with with_image=True %}{% endfor %}
+		</ul>
+
+	</section>
+	{% endif %}</div>
+
+{% include "catalog/wc_wrapper_end.html" %}
+{% endblock %}

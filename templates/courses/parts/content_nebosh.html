@@ -1,0 +1,32 @@
+{% load blog_tags %}
+{# Port of template-parts/post/content-nebosh-course.php #}
+<article class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+    <div class="article-container">
+        <h3 class="post-title" title="{{ item.obj.title|texturize }}">
+            <a href="{{ item.obj.get_absolute_url }}">
+                {{ item.short_title }}
+            </a>
+        </h3>
+
+        {% if item.obj.acf.course_price %}
+            <h4 class="course-archive-price">
+                from {{ item.obj.acf.course_price|safe }}
+            </h4>
+        {% endif %}
+
+        <div class="news-post" id="news-post-{{ item.obj.wp_id|default:item.obj.pk }}">
+            <div class="course-short-description-tumbnail">
+            	{% if item.obj.acf.custom_excerpt %}
+                    {{ item.obj.acf.custom_excerpt|acf_wysiwyg }}
+                {% else %}
+                	<p>{{ item.trimmed }}</p>
+                {% endif %}
+            </div>
+            <div class="post-content">
+                <div class="content-inner">
+                    <a href="{{ item.obj.get_absolute_url }}" class="cta-button">Read more</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>

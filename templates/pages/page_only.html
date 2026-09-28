@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/page-only.php #}
+{% block dns_prefetch %}<link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
+{% if datepicker_dns %}<link rel='dns-prefetch' href='//cdn.jsdelivr.net' />
+{% endif %}<link rel='dns-prefetch' href='//fonts.googleapis.com' />{% endblock %}
+{% block content %}
+    <div class="container-fluid page-only-wrap">
+        <div class="container page-only-grid">
+            <div class="page-only-column page-only-column--intro">
+                <h1 class="page-only-title">{{ page.title|texturize }}</h1>
+                <div class="page-only-content">
+                    {{ page.body_html|safe }}
+                </div>
+            </div>
+
+            <div class="page-only-column page-only-column--enquiry">
+                <div class="page-only-enquiry-card">
+                    <h2 class="page-only-enquiry-title">Make an enquiry</h2>
+                    <div class="page-only-enquiry-form">
+                        {% contact_form 290 %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

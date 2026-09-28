@@ -1,0 +1,460 @@
+"""robots.txt, Yoast-format XML sitemaps (+ XSL stylesheet) and the favicon.
+
+Port of wordpress-seo/inc/sitemaps/*: the index lists one entry per post type / taxonomy /
+author sitemap page (1000 URLs each), entries are ordered by modified date ascending, and every
+URL carries its <lastmod> and <image:image> entries like Yoast writes them.
+"""
+import math
+import re
+from datetime import datetime, timezone as dt_tz
+from pathlib import Path
+from urllib.parse import urlsplit
+
+from django.apps import apps
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Max
+from django.http import FileResponse, Http404, HttpResponse, HttpResponsePermanentRedirect
+from django.utils import timezone
+
+from .engine import absolute, effective_modified
+from .models import SeoMeta, SeoSettings
+
+MAX_ENTRIES = 1000
+XSL_PATH = Path(__file__).with_name("main-sitemap.xsl")
+
+# Order as WordPress registers them (post types first, then taxonomies, then authors).
+POST_TYPES = [
+    ("post", "blog.Post"),
+    ("page", "pages.Page"),
+    ("news", "news.News"),
+    ("nebosh_course", "courses.NeboshCourse"),
+    ("safety_course", "courses.SafetyCourse"),
+    ("product", "catalog.Product"),
+]
+# taxonomy -> (term model, related name of the objects, object post types)
+TAXONOMIES = [
+    ("category", "blog.Category", "posts", ["post"]),
+    ("post_tag", "blog.Tag", "posts", ["post"]),
+    ("news_categories", "news.NewsCategory", "news", ["news"]),
+    ("nebosh_courses", "courses.NeboshCourseTerm", "courses", ["nebosh_course"]),
+    ("safety_courses", "courses.SafetyCourseTerm", "courses", ["safety_course"]),
+    ("product_cat", "catalog.ProductCategory", "products", ["product"]),
+    ("product_tag", "catalog.ProductTag", "products", ["product"]),
+]
+POST_TYPE_MODELS = dict(POST_TYPES)
+TAXONOMY_INFO = {t[0]: t[1:] for t in TAXONOMIES}
+ARCHIVE_URLS = {"news": "/blog/news/", "nebosh_course": "/blog/nebosh_course/",
+                "safety_course": "/blog/safety_course/", "product": "/shop/"}
+
+URLSET_OPEN = (
+    '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+    'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" '
+    'xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 '
+    'http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd '
+    'http://www.google.com/schemas/sitemap-image/1.1 '
+    'http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd" '
+    'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+)
+
+
+# ----------------------------------------------------------------------------- robots / favicon
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /wp-content/uploads/wc-logs/",
+        "Disallow: /wp-content/uploads/woocommerce_transient_files/",
+        "Disallow: /wp-content/uploads/woocommerce_uploads/",
+        "Disallow: /*?add-to-cart=",
+        "Disallow: /*?*add-to-cart=",
+        "Disallow: /wp-admin/",
+        "Allow: /wp-admin/admin-ajax.php",
+        "",
+        "# START YOAST BLOCK",
+        "# ---------------------------",
+        "User-agent: *",
+        "Disallow:",
+        "",
+        f"Sitemap: {settings.SITE_URL}/sitemap_index.xml",
+        "# ---------------------------",
+        "# END YOAST BLOCK",
+    ]
+    extra = SeoSettings.load().robots_txt_extra.strip()
+    if extra:
+        lines += ["", extra]
+    response = HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
+    response["X-Robots-Tag"] = "noindex, follow"
+    return response
+
+
+def favicon(request):
+    path = Path(settings.BASE_DIR) / "static" / "favicon.svg"
+    if not path.exists():
+        raise Http404("No favicon")
+    return FileResponse(open(path, "rb"), content_type="image/svg+xml")
+
+
+def sitemap_xsl(request):
+    response = HttpResponse(XSL_PATH.read_bytes(), content_type="text/xml; charset=UTF-8")
+    response["X-Robots-Tag"] = "noindex, follow"
+    response["Cache-Control"] = "max-age=31536000"
+    return response
+
+
+# ----------------------------------------------------------------------------- formatting
+def fmt_date(value):
+    if not value:
+        return ""
+    return value.astimezone(dt_tz.utc).isoformat(timespec="seconds")
+
+
+def _xml_escape(value):
+    return (value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace('"', "&quot;"))
+
+
+def encode_and_escape(url):
+    """WPSEO_Sitemaps_Renderer::encode_and_escape (esc_url, &#038; -> &amp;, &#039; -> &apos;)."""
+    url = url.replace(" ", "%20")
+    return url.replace("&amp;", "&").replace("&", "&amp;").replace("'", "&apos;").replace('"', "%22") \
+        .replace("<", "%3C").replace(">", "%3E")
+
+
+def _output(body):
+    stylesheet_url = re.sub(r"^https?:", "", settings.SITE_URL) + "/main-sitemap.xsl"
+    out = ('<?xml version="1.0" encoding="UTF-8"?>'
+           f'<?xml-stylesheet type="text/xsl" href="{_xml_escape(stylesheet_url)}"?>\n'
+           + body + "\n<!-- XML Sitemap generated by Yoast SEO -->")
+    response = HttpResponse(out, content_type="text/xml; charset=UTF-8")
+    response["X-Robots-Tag"] = "noindex, follow"
+    return response
+
+
+def render_index(links):
+    xml = '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    for link in links:
+        xml += "\t<sitemap>\n"
+        xml += f"\t\t<loc>{_xml_escape(link['loc'])}</loc>\n"
+        if link.get("lastmod"):
+            xml += f"\t\t<lastmod>{fmt_date(link['lastmod'])}</lastmod>\n"
+        xml += "\t</sitemap>\n"
+    return xml + "</sitemapindex>"
+
+
+def render_urlset(links):
+    xml = URLSET_OPEN
+    for url in links:
+        xml += "\t<url>\n"
+        xml += f"\t\t<loc>{encode_and_escape(url['loc'])}</loc>\n"
+        if url.get("mod"):
+            xml += f"\t\t<lastmod>{fmt_date(url['mod'])}</lastmod>\n"
+        for src in url.get("images", []):
+            if src:
+                xml += "\t\t<image:image>\n"
+                xml += f"\t\t\t<image:loc>{encode_and_escape(src)}</image:loc>\n"
+                xml += "\t\t</image:image>\n"
+        xml += "\t</url>\n"
+    return xml + "</urlset>"
+
+
+# ----------------------------------------------------------------------------- post types
+def _model(label):
+    return apps.get_model(label)
+
+
+def _published(post_type):
+    model = _model(POST_TYPE_MODELS[post_type])
+    if post_type == "product":
+        return model.objects.published()
+    return model.objects.published()
+
+
+def _meta_map(model):
+    ct = ContentType.objects.get_for_model(model)
+    return {m.object_id: m for m in SeoMeta.objects.filter(content_type=ct)}
+
+
+def _entry_dates(post_type, objs):
+    """(obj, modified) with Yoast's max(post_modified_gmt, post_date_gmt)."""
+    model = _model(POST_TYPE_MODELS[post_type])
+    metas = _meta_map(model) if post_type == "product" else {}
+    out = []
+    for obj in objs:
+        modified = effective_modified(obj, metas.get(obj.pk)) if post_type == "product" else obj.modified_at
+        published = getattr(obj, "published_at", None) or getattr(obj, "created_at", None)
+        mod = max(d for d in (modified, published) if d) if (modified or published) else None
+        out.append((obj, modified, mod))
+    return out
+
+
+def _sorted_entries(post_type):
+    qs = _published(post_type)
+    if post_type == "page":
+        qs = qs.select_related("featured_image", "parent")
+    elif post_type != "product":
+        qs = qs.select_related("featured_image")
+    rows = _entry_dates(post_type, qs)
+    rows.sort(key=lambda r: (r[1] or datetime.min.replace(tzinfo=dt_tz.utc), getattr(r[0], "wp_id", None) or 0, r[0].pk))
+    return rows
+
+
+def last_modified(post_types):
+    """WPSEO_Sitemaps::get_last_modified_gmt for one or several post types."""
+    dates = []
+    for pt in post_types:
+        if pt not in POST_TYPE_MODELS:
+            continue
+        if pt == "product":
+            rows = _entry_dates(pt, _published(pt))
+            dates += [r[1] for r in rows if r[1]]
+        else:
+            d = _published(pt).aggregate(m=Max("modified_at"))["m"]
+            if d:
+                dates.append(d)
+    return max(dates) if dates else None
+
+
+def post_type_index_links():
+    links = []
+    for post_type, _ in POST_TYPES:
+        rows = _sorted_entries(post_type)
+        total = len(rows)
+        if total == 0:
+            continue
+        max_pages = math.ceil(total / MAX_ENTRIES) if total > MAX_ENTRIES else 1
+        type_last = max((r[1] for r in rows if r[1]), default=None)
+        for i in range(max_pages):
+            page = "" if i == 0 else i + 1
+            if i == 0 or i + 1 == max_pages:
+                date = type_last
+            else:
+                date = rows[(i + 1) * MAX_ENTRIES - 1][1]
+            links.append({"loc": absolute(f"/{post_type}-sitemap{page}.xml"), "lastmod": date})
+    return links
+
+
+def _image_items(obj):
+    """WPSEO_Sitemap_Image_Parser::get_images."""
+    from apps.core.models import Media
+    images = []
+    featured = getattr(obj, "featured_image", None)
+    if featured is not None and featured.file:
+        images.append(absolute(featured.url))
+    content = getattr(obj, "content", None)
+    if content is None:
+        content = getattr(obj, "description", "") or ""
+    images += _html_images(content, Media)
+    return [i for i in images if i]
+
+
+def _html_images(content, Media=None):
+    if Media is None:
+        from apps.core.models import Media
+    host = urlsplit(settings.SITE_URL).hostname or ""
+    host = host.replace("www.", "")
+    out = []
+    for tag in re.findall(r"<img\s[^>]*>", content or "", re.I):
+        m = re.search(r"\ssrc\s*=\s*([\"'])(.*?)\1", tag, re.I | re.S)
+        if not m or not m.group(2):
+            continue
+        src = m.group(2)
+        cm = re.search(r"\sclass\s*=\s*([\"'])(.*?)\1", tag, re.I | re.S)
+        cls = cm.group(2) if cm else ""
+        idm = re.search(r"wp-image-(\d+)", cls)
+        if cls and "size-full" not in cls and idm:
+            media = Media.objects.filter(wp_id=int(idm.group(1))).first()
+            if media is not None and media.file:
+                query = urlsplit(src).query
+                src = media.url + (f"?{query}" if query else "")
+        if src.startswith("/") and not src.startswith("//"):
+            src = settings.SITE_URL + src
+        elif src.startswith("//"):
+            src = urlsplit(settings.SITE_URL).scheme + ":" + src
+        if host not in src:
+            continue
+        out.append(src)
+    return out
+
+
+def _post_url(obj):
+    loc = absolute(obj.get_absolute_url())
+    canonical = getattr(obj, "canonical_url", "")
+    if canonical and canonical != loc:
+        return None
+    return loc
+
+
+def post_type_links(post_type, page):
+    rows = _sorted_entries(post_type)
+    total = len(rows)
+    offset = (page - 1) * MAX_ENTRIES
+    if total < offset or (page > 1 and total <= offset):
+        raise Http404("Invalid sitemap page requested")
+    links = []
+    if page == 1:
+        links += _first_links(post_type)
+    exclude = set()
+    if post_type == "page":
+        exclude = {r[0].pk for r in rows if r[0].is_front_page or r[0].is_posts_page}
+    for obj, _modified, mod in rows[offset:offset + MAX_ENTRIES]:
+        if obj.pk in exclude or getattr(obj, "noindex", False):
+            continue
+        loc = _post_url(obj)
+        if not loc:
+            continue
+        links.append({"loc": loc, "mod": mod, "images": _image_items(obj)})
+    return links
+
+
+def _first_links(post_type):
+    if post_type == "page":
+        Page = _model("pages.Page")
+        front = Page.objects.filter(is_front_page=True).select_related("featured_image").first()
+        if front is not None:
+            mod = max(front.modified_at, front.published_at)
+            return [{"loc": absolute("/"), "mod": mod, "images": _image_items(front)}]
+        return [{"loc": absolute("/")}]
+    if post_type == "post":
+        Page = _model("pages.Page")
+        blog = Page.objects.filter(is_posts_page=True).first()
+        if blog is None or blog.noindex:
+            return []
+        return [{"loc": absolute(blog.get_absolute_url()), "mod": last_modified(["post"])}]
+    if post_type in ARCHIVE_URLS:
+        templates = SeoSettings.load().title_templates
+        if templates.get(f"noindex-ptarchive-{post_type}"):
+            return []
+        if post_type == "product":
+            Page = _model("pages.Page")
+            shop = Page.objects.filter(slug="shop").first()
+            if shop is not None and shop.noindex:
+                return []
+        return [{"loc": absolute(ARCHIVE_URLS[post_type]), "mod": last_modified([post_type])}]
+    return []
+
+
+# ----------------------------------------------------------------------------- taxonomies
+def _term_objects(term, rel, object_types):
+    manager = getattr(term, rel)
+    if object_types == ["product"]:
+        return manager.filter(status="publish")
+    return manager.published()
+
+
+def eligible_terms(taxonomy):
+    """get_terms(hide_empty=True): terms with published objects, or (hierarchical) a
+    descendant with objects. Ordered by name like WordPress."""
+    model_label, rel, object_types = TAXONOMY_INFO[taxonomy]
+    model = _model(model_label)
+    terms = list(model.objects.all())
+    counts = {t.pk: _term_objects(t, rel, object_types).count() for t in terms}
+    hierarchical = hasattr(model, "parent")
+    keep = []
+    for t in terms:
+        if counts[t.pk] > 0:
+            keep.append(t)
+        elif hierarchical and any(counts.get(d.pk) for d in t.get_descendants()):
+            keep.append(t)
+    keep.sort(key=lambda t: (t.name.lower(), t.pk))
+    return keep
+
+
+def _term_lastmod(term, taxonomy):
+    _model_label, rel, object_types = TAXONOMY_INFO[taxonomy]
+    objs = list(_term_objects(term, rel, object_types))
+    if not objs:
+        return None
+    pt = object_types[0]
+    return max((r[1] for r in _entry_dates(pt, objs) if r[1]), default=None)
+
+
+def taxonomy_index_links():
+    links = []
+    for taxonomy, _model_label, _rel, object_types in TAXONOMIES:
+        if SeoSettings.load().title_templates.get(f"noindex-tax-{taxonomy}"):
+            continue
+        terms = eligible_terms(taxonomy)
+        if not terms:
+            continue
+        type_last = last_modified(object_types)
+        max_pages = math.ceil(len(terms) / MAX_ENTRIES) if len(terms) > MAX_ENTRIES else 1
+        for i in range(max_pages):
+            chunk = terms[i * MAX_ENTRIES:(i + 1) * MAX_ENTRIES]
+            dates = [d for d in (_term_lastmod(t, taxonomy) for t in chunk) if d]
+            date = max(dates) if dates else type_last
+            page = "" if i == 0 else i + 1
+            links.append({"loc": absolute(f"/{taxonomy}-sitemap{page}.xml"), "lastmod": date})
+    return links
+
+
+def taxonomy_links(taxonomy, page):
+    terms = eligible_terms(taxonomy)[(page - 1) * MAX_ENTRIES:page * MAX_ENTRIES]
+    if not terms:
+        raise Http404("Invalid sitemap page requested")
+    links = []
+    for term in terms:
+        if getattr(term, "noindex", False):
+            continue
+        loc = absolute(term.get_absolute_url())
+        if term.canonical_url and term.canonical_url != loc:
+            continue
+        links.append({"loc": loc, "mod": _term_lastmod(term, taxonomy),
+                      "images": _html_images(getattr(term, "description", ""))})
+    return links
+
+
+# ----------------------------------------------------------------------------- authors
+def _authors():
+    from apps.blog.models import AuthorProfile, Post
+    user_ct = None
+    rows = []
+    for profile in AuthorProfile.objects.select_related("user"):
+        if not Post.objects.published().filter(author=profile.user).exists():
+            continue
+        user_ct = user_ct or ContentType.objects.get_for_model(profile.user)
+        meta = SeoMeta.objects.filter(content_type=user_ct, object_id=profile.user.pk).first()
+        updated = meta.profile_updated if meta and meta.profile_updated else None
+        rows.append((profile, updated))
+    rows.sort(key=lambda r: r[1] or timezone.now(), reverse=True)
+    return rows
+
+
+def author_index_links():
+    rows = _authors()
+    links = []
+    for i in range(0, len(rows), MAX_ENTRIES):
+        page = "" if i == 0 else i // MAX_ENTRIES + 1
+        links.append({"loc": absolute(f"/author-sitemap{page}.xml"), "lastmod": rows[i][1]})
+    return links
+
+
+def author_links(page):
+    rows = _authors()[(page - 1) * MAX_ENTRIES:page * MAX_ENTRIES]
+    if not rows:
+        raise Http404("Invalid sitemap page requested")
+    return [{"loc": absolute(p.get_absolute_url()), "mod": updated or timezone.now()} for p, updated in rows]
+
+
+# ----------------------------------------------------------------------------- views
+def sitemap_index(request):
+    links = post_type_index_links() + taxonomy_index_links() + author_index_links()
+    return _output(render_index(links))
+
+
+def sitemap(request, kind, number=""):
+    if number == "1":
+        return HttpResponsePermanentRedirect(f"/{kind}-sitemap.xml")
+    page = int(number) if number else 1
+    if page < 1:
+        raise Http404
+    if kind in POST_TYPE_MODELS:
+        links = post_type_links(kind, page)
+    elif kind in TAXONOMY_INFO:
+        if SeoSettings.load().title_templates.get(f"noindex-tax-{kind}"):
+            raise Http404
+        links = taxonomy_links(kind, page)
+    elif kind == "author":
+        links = author_links(page)
+    else:
+        raise Http404("Unknown sitemap")
+    return _output(render_urlset(links))

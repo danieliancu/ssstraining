@@ -1,0 +1,7 @@
+{% extends "pages/default.html" %}
+{# /basket/ — page.php + [woocommerce_cart] #}
+{% block page_body %}
+ <div class="woocommerce"><div class="woocommerce-notices-wrapper">{{ notices_html|safe }}</div>
+{% if totals.is_empty %}{% include "woocommerce/cart/cart-empty.html" %}{% else %}{% include "woocommerce/cart/cart.html" %}{% endif %}
+</div>
+{% endblock %}

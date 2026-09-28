@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/page-api.php #}
+{% block dns_prefetch %}<link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
+<link rel='dns-prefetch' href='//cdn.jsdelivr.net' />
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />{% endblock %}
+{% block content %}
+<div class="container-page-title">
+    <h1 class="page-title">{{ page.title|texturize }}</h1>
+
+    {% if page_has_content %}
+        <div class="api-page-accordion">
+            <button type="button" class="api-page-accordion-toggle" aria-expanded="false" aria-controls="api-page-content">
+                <p class="api-page-accordion-title">Find out more</p>
+                <span class="api-page-caret" aria-hidden="true"></span>
+            </button>
+            <div id="api-page-content" class="api-page-content" hidden>
+                {{ page.body_html|safe }}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- FILTERS FORM -->
+    <form method="GET" action="" class="api-course-filter-form">
+
+        {% if nebosh_dl_url %}
+                <div class="api-course-filter-group nebosh-dl-notice" style="grid-column: 1 / -1; background:#eef6ff; border:1px solid #57b8ff; border-radius:4px; padding:10px 16px; font-size:14px; display:flex; align-items:center; gap:6px;">
+                    Choose NEBOSH Distance Learning.
+                    <a href="{{ site_url }}{{ nebosh_dl_url }}" style="color:#57b8ff; font-weight:600; text-decoration:underline;">Find out more</a>
+                </div>
+        {% endif %}
+
+        <!-- Start Date (On or After) -->
+        <div class="api-course-filter-group">
+            <label for="filter_date">Start Date (On or
+                After)</label>
+            <input type="text" name="filter_date" id="filter_date" value="{{ filter_date }}"
+                min="{{ tomorrow }}"
+                class="api-filter-date js-date-picker"
+                autocomplete="off" placeholder="Select date">
+        </div>
+
+        <!-- Venue -->
+        <div class="api-course-filter-group">
+            <label for="filter_venue">Venue</label>
+            <select name="filter_venue" id="filter_venue" class="no-selectpicker">
+                <option value="">All Venues</option>
+                {% for v in available_venues %}
+                    <option value="{{ v }}" {% if v == filter_venue %} selected='selected'{% endif %}>
+                        {{ v }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Sort By -->
+        <div class="api-course-filter-group">
+            <label for="sort_by">Sort</label>
+            <select name="sort_by" id="sort_by" class="no-selectpicker">
+                {% for value, label in sort_options %}<option value="{{ value }}" {% if value == sort_by %} selected='selected'{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Submit -->
+        <div class="api-course-filter-actions">
+            <button type="submit" class="button">Filter
+                Results</button>
+        </div>
+
+    </form>
+
+
+    <!-- RESULTS -->
+    {% if groups %}
+            {% for month_label, items in groups.items %}
+                <p class='month-head'>{{ month_label }}</p>
+                <div style='margin-bottom:20px;'>
+                    {% for item in items %}{% include "pages/parts/api_card.html" %}{% endfor %}
+                </div>
+            {% endfor %}
+    {% else %}
+        <p style="margin-top:20px; font-size: 18px; text-align: center;">No courses found matching your criteria.</p>
+    {% endif %}
+
+</div>
+
+{% deferscript %}
+    (function () {
+        const toggle = document.querySelector('.api-page-accordion-toggle');
+        const content = document.querySelector('.api-page-content');
+        if (!toggle || !content) return;
+
+        toggle.addEventListener('click', function () {
+            const isOpen = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', String(!isOpen));
+            content.hidden = isOpen;
+            this.classList.toggle('is-open', !isOpen);
+        });
+    })();
+{% enddeferscript %}
+{% endblock %}

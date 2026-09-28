@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% load blog_tags %}
+{# Port of twentyseventeen-child/404.php #}
+{% block content %}
+<div class="container-fluid error-404 no-padding no-margin cta-bg-cover"
+    style="background-image:url({{ options.page_404_image|media_url:'fullWidthHeaderImage' }});">
+    <div class="container vertical">
+        <div class="row">
+            <div class="col-xs-12 col-sm-2 col-md-3 col-lg-3">
+            </div>
+
+            <div class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+                <div class="error-404-inner">
+                    <h1>404</h1>
+                    <b class="title">Something has gone wrong</b>
+
+                    <span class="main">{{ options.page_404_message|acf_wysiwyg }}</span>
+
+                    <p>To go back to the homepage, <a href="{{ site_url }}">click here</a> or try
+                        searching for something else using the form below.</p>
+
+                    {% include "blog/parts/searchform.html" %}
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-sm-2 col-md-3 col-lg-3">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

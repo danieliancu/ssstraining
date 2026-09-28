@@ -1,0 +1,11 @@
+{% load blog_tags %}
+{# Port of searchform.php #}
+<div class="search-form-main">
+
+<form role="search" method="get" class="search-form" action="{{ site_url }}/">
+	<input type="search" id="{% uniqid "search-form-" %}" class="search-field" placeholder="Search &hellip;" value="{{ search_query }}" name="s" />
+
+	<button type="submit" class="search-submit"><i class="fa fa-search"></i></button>
+</form>
+
+</div>

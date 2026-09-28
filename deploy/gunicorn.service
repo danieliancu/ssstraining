@@ -1,0 +1,16 @@
+# /etc/systemd/system/sst.service  (or a Forge "Daemon": command below, directory = project root)
+[Unit]
+Description=Site Safety Training (Django / gunicorn)
+After=network.target
+
+[Service]
+User=forge
+Group=forge
+WorkingDirectory=/home/forge/sstcourses.co.uk
+EnvironmentFile=/home/forge/sstcourses.co.uk/.env
+RuntimeDirectory=sst
+ExecStart=/home/forge/sstcourses.co.uk/.venv/bin/gunicorn sst.wsgi:application --workers 3 --timeout 60 --bind unix:/run/sst/gunicorn.sock
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

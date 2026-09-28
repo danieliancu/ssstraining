@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/page.php #}
+{% block content %}
+<div class="container-fluid breadcrumb-container">
+	<div class="container">
+		<div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+             	<div class="header-breadcrumb archive-breadcrumb">
+                   	{% breadcrumbs %}
+                </div>
+            </div>
+    	</div>
+	</div>
+</div>
+
+<div class="container-fluid archive-top-block">
+	<div class="container">
+		<div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <h1 class="page-title-main">
+                    <b>{{ page.title|texturize }}</b>
+                </h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid standard-post reduce-header">
+	<div class="container">
+        <div class="row">
+			{% if site_options.enable_sidebar_on_pages %}
+            	<div class="col-xs-0 col-sm-3 col-md-4 col-lg-4">
+                	{% include "pages/parts/sidebar.html" %}
+                </div>
+
+                <div class="col-xs-12 col-sm-9 col-md-8 col-lg-8">
+                	<article class="standard-post-content with-sidebar">
+                    	{% include "pages/parts/page_body.html" %}
+                    </article>
+                </div>
+            {% else %}
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    	<article class="standard-post-content no-sidebar">
+							{% block page_body %}{% include "pages/parts/page_body.html" %}{% endblock %}
+                        </article>
+                    </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if page.wp_id == 207 %}
+    <div class="container-fluid book-now-contact-form-conatainer" id="scrollToForm">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h3 class="contact-form-header">Questions about this course? Want to reserve a date? Fill in the form below.</h3>
+                    <div class="book-now-contact-form">
+                        {% contact_form 290 %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

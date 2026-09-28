@@ -1,0 +1,21 @@
+{# Port of template-parts/page/content-front-page-trusted-carousel.php #}
+{% if trusted_logos %}
+<div class="trusted-carousel-section" aria-label="Trusted by logos carousel">
+	<div class="container">
+		<h2 class="trusted-carousel-label">Trusted by</h2>
+	</div>
+
+	<div class="trusted-carousel-viewport">
+		<div class="trusted-carousel-track">
+			{% for logo in trusted_logos %}
+				<div class="trusted-carousel-item">
+					<img src="/static/wp/wp-content/themes/twentyseventeen-child/assets/images/trusted/{{ logo.file|urlencode }}"
+						alt="{{ logo.name }}"
+						loading="lazy"
+						decoding="async">
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endif %}

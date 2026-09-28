@@ -1,0 +1,18 @@
+{# Port of template-parts/post/content.php (archive/listing branch) #}
+<article id="post-{{ item.obj.wp_id|default:item.obj.pk }}" class="{{ item.classes }}">
+	<header class="entry-header">
+		{% if item.post_type == "post" %}<div class="entry-meta">{{ item.time_link }}</div><!-- .entry-meta -->{% endif %}<h2 class="entry-title"><a href="{{ item.obj.get_absolute_url }}" rel="bookmark">{{ item.obj.title|texturize }}</a></h2>	</header><!-- .entry-header -->
+
+	{% if item.thumb %}
+		<div class="post-thumbnail">
+			<a href="{{ item.obj.get_absolute_url }}">
+				{{ item.thumb }}
+			</a>
+		</div><!-- .post-thumbnail -->
+	{% endif %}
+
+	<div class="entry-content">
+		{{ item.content }}
+	</div><!-- .entry-content -->
+
+</article><!-- #post-## -->

@@ -1,0 +1,50 @@
+<div class="cart_totals ">
+
+
+	<h2>Basket totals</h2>
+
+	<table cellspacing="0" class="shop_table shop_table_responsive">
+
+		<tr class="cart-subtotal">
+			<th>Subtotal</th>
+			<td data-title="Subtotal">{{ totals.subtotal|wc_price }}</td>
+		</tr>
+
+		{% for code, amount, tax in totals.discounts %}
+			<tr class="cart-discount coupon-{{ code }}">
+				<th>Coupon: {{ code }}</th>
+				<td data-title="Coupon: {{ code }}">-{{ amount|wc_price }} <a href="{{ site_url }}/basket/?remove_coupon={{ code }}" class="woocommerce-remove-coupon" data-coupon="{{ code }}">[Remove]</a></td>
+			</tr>
+		{% endfor %}
+
+
+		{% for name, amount, tax in totals.fees %}
+			<tr class="fee">
+				<th>{{ name }}</th>
+				<td data-title="{{ name }}">{{ amount|wc_price }}</td>
+			</tr>
+		{% endfor %}
+
+		{% if totals.lines %}
+							<tr class="tax-rate tax-rate-gb-vat-1">
+						<th>VAT</th>
+						<td data-title="VAT">{{ totals.tax_total|wc_price:False }}</td>
+					</tr>
+					{% endif %}
+
+		<tr class="order-total">
+			<th>Total</th>
+			<td data-title="Total"><strong>{{ totals.total|wc_price }}</strong> </td>
+		</tr>
+
+
+	</table>
+
+	<div class="wc-proceed-to-checkout">
+
+<a href="{{ site_url }}/checkout-2/" class="checkout-button button alt wc-forward">
+	Proceed to checkout</a>
+	</div>
+
+
+</div>

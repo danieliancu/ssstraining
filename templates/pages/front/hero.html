@@ -1,0 +1,156 @@
+{# Port of template-parts/page/content-front-page-hero.php #}
+<div class="custom-hero-wrapper">
+
+    <!-- Optional: Subtle background shape or gradient element -->
+
+    <div class="container hero-container-rel">
+        <div class="hero-flex-wrapper">
+
+            <!-- LEFT COLUMN: Text -->
+            <div class="hero-text-content">
+
+                <div class="hero-accreditation-logos" aria-label="Professional accreditations">
+                    <img class="hero-accreditation-logo hero-accreditation-logo--iosh"
+                        src="/wp-content/uploads/2026/08/iosh.jpg"
+                        width="800" height="338" alt="IOSH Chartered Safety and Health Professional">
+                    <img class="hero-accreditation-logo hero-accreditation-logo--nebosh"
+                        src="/wp-content/uploads/2026/08/Nebosh-logo.jpg"
+                        width="225" height="224" alt="NEBOSH Learning Partner Silver 731">
+                </div>
+
+                <!-- Headline -->
+                <h1 class="hero-headline">
+                    Empowering Safety,<br>
+                    <span>Shaping the Future.</span>
+                </h1>
+
+                <!-- Subtitle -->
+                <p class="hero-subtitle">
+                    Premium site safety training delivered by experts. Accredited by CITB, IOSH, and NEBOSH. Elevate
+                    your team's potential with our industry-recognized certifications.
+                </p>
+
+                <!-- Button -->
+                <a href="{{ site_url }}/shop/" class="hero-submit-button"
+                    style="width: 200px;">
+                    Explore Courses
+                </a>
+            </div>
+
+            <!-- RIGHT COLUMN: Search Card -->
+            <div class="hero-search-card">
+
+                <div class="hero-search-header">
+                    <div class="hero-header-toggles">
+                        <fieldset class="hero-radio-group hero-mode-selector" aria-label="Search type">
+                            <label class="hero-radio-option">
+                                <input type="radio" name="hero_course_mode" value="courses" {% if hero_search_mode == "courses" %} checked='checked'{% endif %}>
+                                <span>Courses</span>
+                            </label>
+                            <label class="hero-radio-option">
+                                <input type="radio" name="hero_course_mode" value="nvq" {% if hero_search_mode == "nvq" %} checked='checked'{% endif %}>
+                                <span>NVQ</span>
+                            </label>
+                        </fieldset>
+
+                        <fieldset class="hero-radio-group hero-delivery-selector" aria-label="Delivery method">
+                            <label class="hero-radio-option">
+                                <input type="radio" name="delivery_mode" value="classroom" {% if hero_delivery_mode == "classroom" %} checked='checked'{% endif %}>
+                                <span>Classroom</span>
+                            </label>
+                            <label class="hero-radio-option">
+                                <input type="radio" name="delivery_mode" value="online" {% if hero_delivery_mode == "online" %} checked='checked'{% endif %}>
+                                <span>Online</span>
+                            </label>
+                            <label class="hero-radio-option">
+                                <input type="radio" name="delivery_mode" value="distance_learning" {% if hero_delivery_mode == "distance_learning" %} checked='checked'{% endif %}>
+                                <span>Distance Learning</span>
+                            </label>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <form id="hero-search-form" method="GET" action="{{ site_url }}/shop/">
+                    <input type="hidden" name="post_type" value="product" />
+                    <input type="hidden" name="search_mode" id="hero_search_mode" value="{{ hero_search_mode }}" />
+
+                    <div class="hero-search-fields hero-search-fields--courses" data-mode-fields="courses">
+                        <input type="hidden" name="is_online" id="hero_is_online" value="{% if hero_selected_mode == "online" %}online{% endif %}" />
+
+                        {% if hero_references %}
+                            <div class="hero-form-group">
+                                <label class="hero-form-label">
+                                    Filter by Course
+                                </label>
+                                <select name="reference"
+                                    id="select_reference" class="no-selectpicker hero-form-select">
+                                    <option value="">Select Course</option>
+                                    {% for slug, name in hero_references %}<option value="{{ slug }}">{{ name }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                        {% if hero_venues %}
+                            <div class="hero-form-group">
+                                <label class="hero-form-label">
+                                    Filter by Venue
+                                </label>
+                                <select name="venue"
+                                    id="select_venue" class="no-selectpicker hero-form-select">
+                                    <option value="">Select Venue</option>
+                                    {% for venue in hero_venues %}<option value="{{ venue }}">{{ venue }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+
+                        <div class="hero-date-wrapper">
+                            <label class="hero-form-label">From</label>
+                            <div class="hero-date-flex">
+                                <div style="flex: 1;">
+                                    <input type="text" id="date_from" name="from" value=""
+                                        min="{{ tomorrow|date:"Y-m-d" }}" class="hero-date-input js-date-picker" autocomplete="off" placeholder="Select date">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-search-fields hero-search-fields--nvq" data-mode-fields="nvq" hidden>
+                        <div class="hero-form-group">
+                            <label class="hero-form-label">Filter by NVQ Level</label>
+                            <select name="nvq_level" id="select_nvq_level" class="no-selectpicker hero-form-select">
+                                <option value="">Select NVQ Level</option>
+                                {% for level_number, level_page in hero_nvq_level_pages.items %}
+                                    <option value="{{ level_number }}">
+                                        {{ level_page.label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="hero-form-group">
+                            <label class="hero-form-label">Filter by NVQ</label>
+                            <select name="nvq_course" id="select_nvq_course" class="no-selectpicker hero-form-select">
+                                <option value="">Select NVQ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="hero-submit-button" id="hero-submit-button">
+                        {% if hero_search_mode == "nvq" %}Find NVQ{% else %}Find Courses{% endif %}
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                </form>
+
+                {% deferscript %}
+{% include "pages/front/hero_script.js.html" %}{% enddeferscript %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% deferscript %}
+    document.addEventListener('DOMContentLoaded', function () {
+        // Placeholder handling if needed
+    });
+{% enddeferscript %}

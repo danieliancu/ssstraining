@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load catalog_tags %}
+{# Port of taxonomy-product_cat.php #}
+{% block dns_prefetch %}<link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
+<link rel='dns-prefetch' href='//cdn.jsdelivr.net' />
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />{% endblock %}
+{% block content %}
+<div class="container woocommerce-notices-wrapper"><div class="woocommerce-notices-wrapper"></div></div>
+
+<div class="container-page-title">
+    <h1 class="page-title">{{ page_title }}</h1>
+
+    {% if term.description.strip %}<div class="api-page-accordion">
+            <button type="button" class="api-page-accordion-toggle" aria-expanded="false" aria-controls="api-page-content">
+                <p class="api-page-accordion-title">Find out more</p>
+                <span class="api-page-caret" aria-hidden="true"></span>
+            </button>
+            <div id="api-page-content" class="api-page-content" hidden>
+                {{ term.description|texturize|wpautop }}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- FILTERS FORM -->
+    <form method="GET" action="" class="api-course-filter-form">
+
+        <!-- Start Date (On or After) -->
+        <div class="api-course-filter-group">
+            <label for="filter_date">Start Date (On or
+                After)</label>
+            <input type="text" name="filter_date" id="filter_date" value="{{ filter_date }}"
+                min="{{ tomorrow }}"
+                class="api-filter-date js-date-picker"
+                autocomplete="off" placeholder="Select date">
+        </div>
+
+        <!-- Venue -->
+        <div class="api-course-filter-group">
+            <label for="filter_venue">Venue</label>
+            <select name="filter_venue" id="filter_venue" class="no-selectpicker">
+                <option value="">All Venues</option>
+                {% for v in venues %}<option value="{{ v }}" {% if filter_venue == v %} selected='selected'{% endif %}>
+                        {{ v }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Sort By -->
+        <div class="api-course-filter-group">
+            <label for="sort_by">Sort</label>
+            <select name="sort_by" id="sort_by" class="no-selectpicker">
+                {% for value, label in sort_options %}<option value="{{ value }}" {% if sort_by == value %} selected='selected'{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Submit -->
+        <div class="api-course-filter-actions">
+            <button type="submit" class="button">Filter
+                Results</button>
+        </div>
+
+    </form>
+
+    {% if nebosh_dl_url %}<div class="nebosh-dl-notice" style="border-radius:4px; font-size:14px; display:flex; align-items:center; gap:6px; padding-bottom:20px;">
+                Also available as distance learning — add it at checkout.
+                <a href="{{ site_url }}{{ nebosh_dl_url }}" style="color:#57b8ff; font-weight:600; text-decoration:underline;">Find out more</a>
+            </div>
+            {% endif %}
+
+    {% if groups %}{% for month_label, items in groups %}<p class="month-head">{{ month_label }}</p>
+            <div style="margin-bottom:20px;">
+                {% for item in items %}<div style="padding:20px; border:1px solid #ccc; margin-bottom:20px; border-radius:8px; background:#fff;">
+            <h3 style="margin-top:0;color:#57b8ff;font-weight:bold;font-size:18px;">{{ item.name }}</h3>
+
+            <div style="display:flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                <span style="min-width: 150px;">
+                    <strong>Price:</strong>
+                    {% if item.is_on_sale %}<del style="color: #999;">£{{ item.regular_price|wc_raw_price }} + VAT</del>
+                        <span style="color: #d9534f; font-weight: bold;">£{{ item.sale_price|wc_raw_price }} + VAT</span>
+                    {% else %}£{{ item.price|wc_raw_price }} + VAT
+                    {% endif %}</span>
+
+                {% if item.start_date and item.start_date|same_day:item.end_date %}<span style="min-width: 200px;"><strong>Date:</strong> {{ item.start_date|display_date }}</span>
+                {% elif item.start_date %}<span style="min-width: 200px;"><strong>Start:</strong> {{ item.start_date|display_date }}</span>
+
+                    {% if item.end_date %}<span style="min-width: 200px;"><strong>End:</strong> {{ item.end_date|display_date }}</span>
+                    {% endif %}{% endif %}
+
+                {% if item.start_time %}<span style="min-width: 150px;"><strong>Time:</strong> {{ item.start_time }}</span>
+                {% endif %}
+
+                <span style="min-width: 200px;"><strong>Venue:</strong> {{ item.venue }}</span>
+
+                {% if item.spaces %}<span style="min-width: 150px;"><strong>Spaces:</strong> {{ item.spaces }}</span>
+                {% endif %}</div>
+
+            <a href="?add-to-cart={{ item.id }}" class="button add_to_cart_button"
+                style="background-color: #57b8ff; color: white; border: none;">
+                Add to basket
+            </a>
+        </div>
+                {% endfor %}</div>
+        {% endfor %}{% else %}<p style="margin-top:20px; font-size: 18px; text-align: center;">No courses found matching your criteria.</p>
+    {% endif %}</div>
+
+{% deferscript %}
+    (function () {
+        const toggle = document.querySelector('.api-page-accordion-toggle');
+        const content = document.querySelector('.api-page-content');
+        if (!toggle || !content) return;
+
+        toggle.addEventListener('click', function () {
+            const isOpen = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', String(!isOpen));
+            content.hidden = isOpen;
+            this.classList.toggle('is-open', !isOpen);
+        });
+    })();
+{% enddeferscript %}
+
+{% include "pages/front/trusted_carousel.html" %}
+{% endblock %}

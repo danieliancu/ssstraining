@@ -1,0 +1,37 @@
+{# Port of template-parts/page/content-bottom-tabs.php #}
+<div class="bottom-tabs-section-container" style="padding: 60px 0; background: #f9fbfd;">
+    <div class="container">
+
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0; margin-bottom: 50px; border-bottom: 2px solid #e1e4e8;">
+            <button class="tab-btn active" data-tab="courses"
+                style="flex: 1; background: #0a1f44; color: white; border: none; padding: 20px 40px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.3s; border-bottom: 4px solid #0066ff;">
+                Training Courses
+            </button>
+            <button class="tab-btn" data-tab="nvqs"
+                style="flex: 1; background: #f1f4f8; color: #0a1f44; border: none; padding: 20px 40px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.3s; border-bottom: 4px solid transparent;">
+                NVQ Qualifications
+            </button>
+        </div>
+
+        <!-- Tab Content Container -->
+        <div id="tabContent">
+
+            <!-- COURSES TAB -->
+            <div class="tab-content active" id="courses-tab">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px;">
+                    {% for card in training_cards %}{% include "pages/front/tab_card.html" %}{% endfor %}
+
+                </div>
+            </div>
+
+            <!-- NVQ TAB -->
+            <div class="tab-content" id="nvqs-tab" style="display: none;">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
+                    {% for card in nvq_cards %}{% include "pages/front/tab_card.html" %}{% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

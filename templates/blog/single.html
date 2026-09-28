@@ -1,0 +1,97 @@
+{% extends "base.html" %}{% load blog_tags %}
+{# Port of twentyseventeen-child/single.php (posts, NEBOSH/safety courses, exam papers) #}
+{% block content %}
+{% if is_course_single %}
+<div class="container-page-title course-page-title-wrap">
+	<div class="course-page-breadcrumbs">
+		<nav class="woocommerce-breadcrumb" aria-label="Breadcrumb">
+			<a href="{{ site_url }}/">Home</a>&nbsp;/&nbsp;Shop
+		</nav>
+	</div>
+	<h1 class="page-title course-page-title">{{ post.title|texturize }}</h1>
+</div>
+{% else %}
+<div class="container-fluid breadcrumb-container">
+	<div class="container">
+		<div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+             	<div class="header-breadcrumb archive-breadcrumb">
+                   	{% breadcrumbs %}
+                </div>
+            </div>
+    	</div>
+	</div>
+</div>
+{% endif %}
+
+<div class="container-fluid course-content {% if is_course_single %}course-content-shop-layout{% endif %}">
+	<div class="container">
+		<div class="row">
+			<div class="col-12 col-md-8">
+				<div class="course-top-container {% if post.featured_image %}with-image{% endif %}">
+					{% if post.featured_image %}
+						<div class="post-image-container">
+						<img src="{{ post.featured_image|media_url:'news-post' }}" alt="{{ post.title|texturize }} logo">
+						</div>
+					{% endif %}
+
+					{% if not is_course_single %}
+					<h1 class="page-title-main">
+						<b>{{ post.title|texturize }} {% if post.acf.course_price %}- Price: From {{ post.acf.course_price }} + VAT {% endif %}</b>
+					</h1>
+					{% elif post.acf.course_price %}
+					<p class="course-single-price">Price: From {{ post.acf.course_price }} + VAT</p>
+					{% endif %}
+				 </div>
+
+				<article class="standard-post-content no-sidebar">
+				{{ body }}
+				</article>
+
+				{% for row in post.acf.nebsosh_content_repeater %}{% if forloop.first %}
+					{% if row.header %}
+						<h2>{{ row.header|safe }}</h2>
+					{% endif %}
+
+					{% if row.sub_header %}
+						<h3>{{ row.sub_header|safe }}</h3>
+					{% endif %}
+
+					{{ row.content|acf_wysiwyg }}
+				{% else %}
+				<div class="accordion-section">
+				   <div class="acc-title">
+					   {{ row.header|safe }}
+				   </div>
+
+				   <div class="acc-section">
+						{{ row.sub_header|safe }}
+
+						{{ row.content|acf_wysiwyg }}
+				   </div>
+				</div>
+				{% endif %}{% endfor %}
+
+				{% for row in post.acf.content_repeater %}
+				<div class="accordion-section">
+					<div class="acc-title">
+						{{ row.header|safe }}
+					</div>
+					<div class="acc-section">
+						{{ row.content|acf_wysiwyg }}
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+
+			<div class="col-12 col-md-4">
+				<div class="sidebar">
+					<h3 class="contact-form-header">Make an enquiry</h3>
+					{% contact_form 290 %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block extra_footer %}{{ exam_papers_css }}{% endblock %}

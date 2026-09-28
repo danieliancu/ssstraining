@@ -1,0 +1,1 @@
+<textarea cols="40" rows="10" maxlength="{{ widget.attrs.maxlength }}" class="{{ widget.attrs.class }}"{% if widget.required %} aria-required="true"{% endif %} aria-invalid="false" placeholder="{{ widget.attrs.placeholder }}" name="{{ widget.name }}">{{ widget.value|default_if_none:"" }}</textarea>

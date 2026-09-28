@@ -1,0 +1,63 @@
+{% extends "base.html" %}{% load catalog_tags page_tags %}
+{# Port of twentyseventeen-child/page-templates/nvq-level-page.php #}
+{% block content %}
+<div class="container-fluid breadcrumb-container">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<div class="header-breadcrumb archive-breadcrumb">
+					{% breadcrumbs %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid archive-top-block">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<h1 class="page-title-main">
+					<b>{% if level_label %}{{ level_label }}{% else %}{{ page.title|texturize }}{% endif %}</b>
+				</h1>
+				{% if page_has_content %}
+							<div class="nvq-level-page-intro">
+								{{ page.body_html|safe }}
+							</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid standard-post reduce-header">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				{% if nvq_products %}
+					<div class="woocommerce nvq-level-products">
+						<ul class="products columns-4">
+							{% for product in nvq_products %}
+		{% product_classes product forloop.counter0 4 as cls %}<li class="{{ cls|add_after_first:"nvq-level-product-card" }}">
+			<a href="{{ site_url }}{{ product.get_absolute_url }}" class="woocommerce-LoopProduct-link woocommerce-loop-product__link">
+				{% include "pages/parts/wc_placeholder_img.html" %}
+				<h2 class="woocommerce-loop-product__title">{{ product.title }}</h2>
+			</a>
+
+			{{ product|shop_card_price }}
+
+			<a href="{{ site_url }}/basket/?add-to-cart={{ product.pk }}" class="button add_to_cart_button product_type_simple">
+				Add to basket
+			</a>
+		</li>
+							{% endfor %}
+						</ul>
+					</div>
+				{% else %}
+					<p class="shop-empty-results">No NVQ products found for {% if level_label %}{{ level_label }}{% else %}this level{% endif %}.</p>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

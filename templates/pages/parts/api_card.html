@@ -1,0 +1,40 @@
+{% load catalog_tags %}        <div style="padding:20px; border:1px solid #ccc; margin-bottom:20px; border-radius:8px; background:#fff;">
+            <h3 style="margin-top:0;color:#57b8ff;font-weight:bold;font-size:18px;">{{ item.name }}</h3>
+
+            <div style="display:flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                <span style="min-width: 150px;">
+                    <strong>Price:</strong>
+                    {% if item.is_on_sale %}
+                        <del style="color: #999;">£{{ item.regular_price|wc_raw_price }} + VAT</del>
+                        <span style="color: #d9534f; font-weight: bold;">£{{ item.sale_price|wc_raw_price }} + VAT</span>
+                    {% else %}
+                        £{{ item.price|wc_raw_price }} + VAT
+                    {% endif %}
+                </span>
+
+                {% if item.start_date|same_day:item.end_date %}
+                    <span style="min-width: 200px;"><strong>Date:</strong> {{ item.start_date|display_date }}</span>
+                {% else %}
+                    <span style="min-width: 200px;"><strong>Start:</strong> {{ item.start_date|display_date }}</span>
+
+                    {% if item.end_date %}
+                        <span style="min-width: 200px;"><strong>End:</strong> {{ item.end_date|display_date }}</span>
+                    {% endif %}
+                {% endif %}
+
+                {% if item.start_time %}
+                    <span style="min-width: 150px;"><strong>Time:</strong> {{ item.start_time }}</span>
+                {% endif %}
+
+                <span style="min-width: 200px;"><strong>Venue:</strong> {{ item.venue }}</span>
+
+                {% if item.spaces %}
+                    <span style="min-width: 150px;"><strong>Spaces:</strong> {{ item.spaces }}</span>
+                {% endif %}
+            </div>
+
+            <a href="?add-to-cart={{ item.id }}" class="button add_to_cart_button"
+                style="background-color: #57b8ff; color: white; border: none;">
+                Add to basket
+            </a>
+        </div>

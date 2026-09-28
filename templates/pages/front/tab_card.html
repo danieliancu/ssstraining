@@ -1,0 +1,19 @@
+                        <div style="background: white; overflow: hidden; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                            class="course-category-card">
+                            <div
+                                style="height: 200px; background: url('{{ card.image }}') center/cover;">
+                            </div>
+                            <div style="padding: 24px;">
+                                <h3
+                                    style="font-size: 20px; font-weight: 900; color: #0a1f44; margin-bottom: 12px; text-transform: uppercase;">
+                                    {{ card.title }}
+                                </h3>
+                                <ul style="list-style: none; padding: 0; margin: 0;">
+                                    {% for link in card.links %}
+                                        <li style="padding: 6px 0;"><a href="{% if link.url|slice:":1" == "/" %}{{ site_url }}{% endif %}{{ link.url }}"
+                                                style="color: #0066ff; text-decoration: none; font-size: 14px; font-weight: 600;">{{ link.title }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>

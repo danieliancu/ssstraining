@@ -1,0 +1,72 @@
+{% extends "admin/base_site.html" %}
+{% load i18n unfold %}
+
+{% comment %}Admin dashboard; data comes from apps/core/admin_dashboard.py.{% endcomment %}
+
+{% block title %}{% trans "Dashboard" %} | {{ site_title|default:_("Django site admin") }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+    {% if alerts %}
+        <div class="flex flex-col gap-2 mb-6">
+            {% for alert in alerts %}
+                <a href="{{ alert.href }}" class="flex items-center gap-2 px-4 py-3 rounded-default border font-medium
+                    {% if alert.variant == 'danger' %}bg-red-100 border-red-200 text-red-700 dark:bg-red-500/20 dark:border-red-500/30 dark:text-red-400
+                    {% else %}bg-blue-100 border-blue-200 text-blue-700 dark:bg-blue-500/20 dark:border-blue-500/30 dark:text-blue-400{% endif %}">
+                    <span class="material-symbols-outlined">{{ alert.icon }}</span>
+                    {{ alert.text }}
+                    <span class="material-symbols-outlined ml-auto">chevron_right</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+        {% for kpi in kpis %}
+            {% component "unfold/components/card.html" with href=kpi.href %}
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center justify-center shrink-0 h-10 w-10 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-400">
+                        <span class="material-symbols-outlined">{{ kpi.icon }}</span>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-sm text-font-subtle-light dark:text-font-subtle-dark">{{ kpi.title }}</p>
+                        <p class="font-semibold text-2xl text-font-important-light dark:text-font-important-dark">{{ kpi.value }}</p>
+                    </div>
+                </div>
+                {% if kpi.trend %}
+                    <p class="text-xs mt-3 {% if kpi.trend.up %}text-green-700 dark:text-green-400{% else %}text-red-700 dark:text-red-400{% endif %}">{{ kpi.trend.text }}</p>
+                {% endif %}
+            {% endcomponent %}
+        {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+            {% component "unfold/components/card.html" with title=_("Recent orders") %}
+                {% component "unfold/components/table.html" with table=recent_orders card_included=1 striped=1 %}{% endcomponent %}
+            {% endcomponent %}
+        </div>
+        <div class="flex flex-col gap-6">
+            {% component "unfold/components/card.html" with title=_("Latest enquiries") %}
+                {% component "unfold/components/table.html" with table=recent_enquiries card_included=1 striped=1 %}{% endcomponent %}
+            {% endcomponent %}
+            {% component "unfold/components/card.html" with title=_("MMC sync") %}
+                {% if last_sync %}
+                    <div class="flex items-center gap-2">
+                        {% if last_sync.ok %}{% include "unfold/helpers/label.html" with text="OK" variant="success" %}{% else %}{% include "unfold/helpers/label.html" with text="Failed" variant="danger" %}{% endif %}
+                        <span class="text-sm">{{ last_sync.get_kind_display }} · {{ last_sync.started_at|date:"d M Y, H:i" }}</span>
+                    </div>
+                    <p class="text-sm mt-1 text-font-subtle-light dark:text-font-subtle-dark">
+                        {{ last_sync.created }} created · {{ last_sync.updated }} updated · {{ last_sync.skipped }} skipped · {{ last_sync.deleted }} deleted
+                    </p>
+                {% else %}
+                    <p class="text-sm text-font-subtle-light dark:text-font-subtle-dark">No sync has run yet.</p>
+                {% endif %}
+            {% endcomponent %}
+        </div>
+    </div>
+
+{% endblock %}

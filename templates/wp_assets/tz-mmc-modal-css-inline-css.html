@@ -1,0 +1,225 @@
+<style id="tz-mmc-modal-css-inline-css">
+
+            .tz-mmc-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.75);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                z-index: 999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: tzMmcFadeOverlay 0.3s ease;
+            }
+            .tz-mmc-modal-content {
+                background: #ffffff;
+                padding: 40px;
+                border-radius: 20px;
+                max-width: 600px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                animation: tzMmcSlideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            @keyframes tzMmcFadeOverlay {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes tzMmcSlideUp {
+                from { opacity: 0; transform: translateY(30px) scale(0.95); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            .tz-mmc-modal-content h2 {
+                color: #19307f;
+                margin-top: 0;
+                margin-bottom: 20px;
+                font-size: 28px;
+                font-weight: 800;
+                font-family: inherit;
+            }
+            .tz-mmc-modal-content p {
+                font-size: 18px;
+                line-height: 1.6;
+                color: #2c3e50;
+                margin-bottom: 35px;
+            }
+            .tz-mmc-modal-btn {
+                background: #19307f;
+                color: #fff !important;
+                border: none;
+                padding: 16px 45px;
+                font-size: 18px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                font-weight: 700;
+                letter-spacing: 1px;
+                display: inline-block;
+                text-decoration: none !important;
+            }
+            .tz-mmc-modal-btn:hover {
+                background: #12225a;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
+            .tz-mmc-modal-content a.tz-mmc-tel {
+                color: #d63638;
+                text-decoration: none;
+                font-weight: 700;
+                border-bottom: 2px solid rgba(214, 54, 56, 0.2);
+                transition: border-bottom 0.3s;
+            }
+            .tz-mmc-modal-content a.tz-mmc-tel:hover {
+                border-bottom: 2px solid #d63638;
+            }
+            /* Reset WC error wrap if it contains our modal */
+            .woocommerce-error:has(.tz-mmc-modal-overlay),
+            .woocommerce-NoticeGroup-checkout:has(.tz-mmc-modal-overlay) {
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+            }
+            .woocommerce-error:has(.tz-mmc-modal-overlay)::before,
+            .woocommerce-NoticeGroup-checkout:has(.tz-mmc-modal-overlay)::before {
+                display: none !important;
+            }
+            .woocommerce-error li:has(.tz-mmc-modal-overlay) {
+                padding: 0 !important;
+                margin: 0 !important;
+                list-style: none !important;
+            }
+            /* Course Plus checkbox */
+            .tz-mmc-courseplus-row {
+                background: #e9e9e9;
+                border: 1px solid #d4d4d4;
+                border-radius: 8px;
+                overflow: hidden;
+                margin-top: 12px;
+            }
+            .tz-mmc-courseplus-row:has(input:checked) {
+                border-color: #19307f;
+            }
+            .tz-mmc-courseplus-top {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                cursor: pointer;
+                background: #19307f;
+                color: #fff;
+                padding: 10px 12px;
+                margin: 0;
+                font-size: 22px;
+                line-height: 1.2;
+                font-weight: 500;
+            }
+            .tz-mmc-courseplus-top input[type='checkbox'] {
+                width: 18px;
+                height: 18px;
+                accent-color: #2f7edb;
+                flex-shrink: 0;
+            }
+            .tz-mmc-courseplus-title {
+                font-size: 16px;
+                flex: 1;
+            }
+            .tz-mmc-courseplus-price {
+                font-size: 16px;
+                font-weight: 600;
+            }
+            .tz-mmc-courseplus-body {
+                padding: 14px 14px 10px;
+            }
+            .tz-mmc-courseplus-heading {
+                margin: 0 0 8px;
+                font-size: 16px;
+                line-height: 1.2;
+                font-weight: 700;
+                color: #222;
+            }
+            .tz-mmc-courseplus-list {
+                margin: 0 0 12px 18px;
+                padding: 0;
+            }
+            .tz-mmc-courseplus-list li {
+                margin-bottom: 4px;
+            }
+            .tz-mmc-courseplus-details {
+                margin: 0 0 8px;
+            }
+            .tz-mmc-courseplus-details summary {
+                cursor: pointer;
+                list-style: none;
+                font-size: 16px;
+                line-height: 1.2;
+                font-weight: 700;
+                color: #222;
+            }
+            .tz-mmc-courseplus-details summary::-webkit-details-marker {
+                display: none;
+            }
+            .tz-mmc-courseplus-details summary::before {
+                content: '\25BC ';
+                font-size: 12px;
+                vertical-align: middle;
+            }
+            .tz-mmc-courseplus-details[open] summary::before {
+                content: '\25B2 ';
+            }
+            .tz-mmc-courseplus-details p,
+            .tz-mmc-courseplus-details ul {
+                margin: 6px 0 0;
+                color: #222;
+            }
+            .tz-mmc-courseplus-details ul {
+                padding-left: 18px;
+            }
+            .tz-mmc-courseplus-details ul li {
+                margin-bottom: 4px;
+            }
+            @media (max-width: 1024px) {
+                .tz-mmc-courseplus-top {
+                    font-size: 16px;
+                }
+                .tz-mmc-courseplus-title {
+                    font-size: 18px;
+                }
+                .tz-mmc-courseplus-price {
+                    font-size: 18px;
+                }
+                .tz-mmc-courseplus-heading {
+                    font-size: 18px;
+                }
+                .tz-mmc-courseplus-details summary {
+                    font-size: 18px;
+                }
+            }
+            @media (max-width: 600px) {
+                .tz-mmc-courseplus-top {
+                    padding: 10px;
+                    gap: 8px;
+                }
+                .tz-mmc-courseplus-title {
+                    font-size: 16px;
+                }
+                .tz-mmc-courseplus-price {
+                    font-size: 16px;
+                }
+                .tz-mmc-courseplus-heading {
+                    font-size: 16px;
+                }
+                .tz-mmc-courseplus-details summary {
+                    font-size: 16px;
+                }
+            }
+        
+/*# sourceURL=tz-mmc-modal-css-inline-css */
+</style>

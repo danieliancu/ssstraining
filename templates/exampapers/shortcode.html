@@ -1,0 +1,39 @@
+		<div class="sst-epm-listing">
+			<form method="get" class="sst-epm-filters">
+				{% for dropdown in dropdowns %}
+					<label>
+						<span>{{ dropdown.label }}</span>
+						<select name="epm_{{ dropdown.key }}">
+							<option value="">All {{ dropdown.label }}</option>
+							{% for option in dropdown.items %}
+								<option value="{{ option.key }}" {% if option.key == dropdown.selected %}selected='selected'{% endif %}>{{ option.label }}</option>
+							{% endfor %}
+						</select>
+					</label>
+				{% endfor %}
+				<button type="submit">Filter</button>
+			</form>
+
+			<div class="sst-epm-card-grid">
+				{% if cards %}
+					{% for card in cards %}
+						<article class="sst-epm-card">
+							<h3>{{ card.paper.title|texturize }}</h3>
+							<div class="sst-epm-card-meta">
+								{% for label, value in card.meta %}
+										<span><strong>{{ label }}:</strong> {{ value }}</span>
+								{% endfor %}
+							</div>
+							<div class="sst-epm-card-content">
+								{{ card.excerpt }}
+							</div>
+							{% if card.url %}
+								<a class="sst-epm-download" href="{{ card.url }}" target="_blank" rel="noopener">View Paper</a>
+							{% endif %}
+						</article>
+					{% endfor %}
+				{% else %}
+					<p class="sst-epm-no-results">No exam papers found.</p>
+				{% endif %}
+			</div>
+		</div>

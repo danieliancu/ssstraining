@@ -1,0 +1,86 @@
+{# Port of twentyseventeen-child/header.php (body part) #}
+<header class="container-fluid header hidden-xs">
+    <div class="container">
+        <div class="container">
+            <div class="header-flex-wrapper">
+                <div class="header-logo">
+                    <a href="{{ site_url }}" id="logo-main" class="premium-logo-link">
+                        <div class="premium-text-logo">
+                            <span class="logo-top">Site Safety Training</span>
+                            <span class="logo-bottom">Consultants Limited</span>
+                        </div>
+                    </a>
+                </div>
+                <nav class="header-nav hidden-xs">
+                    {% nav_menu "Main Menu" "menu-main-menu" container="" %}
+                </nav>
+                <div class="header-actions hidden-xs">
+                    <a href="tel:07939593032" class="header-phone">
+                        <i class="fa fa-phone"></i> <span>07939 593032</span>
+                    </a>
+                    <a href="#" class="header-search rel-pos" aria-label="Search site" data-search-open>
+                        <i class="fa fa-search"></i>
+                    </a>
+                    <a href="{{ site_url }}/basket/" class="header-basket rel-pos" aria-label="Basket">
+                        <svg class="header-basket-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M3 4h2l2.2 9.2A2 2 0 0 0 9.15 15H18a2 2 0 0 0 1.94-1.5L22 7H7"></path>
+                            <circle cx="10" cy="19" r="1.75"></circle>
+                            <circle cx="17" cy="19" r="1.75"></circle>
+                        </svg>
+                        <span class="basket-count">{{ cart_count|default:0 }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="mobile-menu-top hidden-sm hidden-md hidden-lg">
+    <div class="header-inner">
+        <div class="mobile-icons">
+            <a href="tel:{{ site_options.main_telephone_number }}" class="mob-icon">
+                <i class="fa fa-phone"></i>
+            </a>
+            <a href="mailto:{{ site_options.main_email_address }}" class="mob-icon">
+                <i class="fa fa-envelope"></i>
+            </a>
+            <a href="#" class="mob-icon rel-pos" data-search-open aria-label="Search site">
+                <i class="fa fa-search"></i>
+            </a>
+            <a href="{{ site_url }}/basket/" class="mob-icon mob-basket rel-pos" aria-label="Basket">
+                <svg class="header-basket-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M3 4h2l2.2 9.2A2 2 0 0 0 9.15 15H18a2 2 0 0 0 1.94-1.5L22 7H7"></path>
+                    <circle cx="10" cy="19" r="1.75"></circle>
+                    <circle cx="17" cy="19" r="1.75"></circle>
+                </svg>
+                <span class="basket-count">{{ cart_count|default:0 }}</span>
+            </a>
+        </div>
+        <a href="#" id="burgerMenu">
+            <i class="fa fa-navicon"></i>
+        </a>
+        <a href="{{ site_url }}" id="logo-mobile" class="premium-logo-link">
+            <div class="premium-text-logo">
+                <span class="logo-top">Site Safety Training</span>
+                <span class="logo-bottom">Consultants Limited</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="mobile-menu-container hidden-sm hidden-md hidden-lg">
+    {% nav_menu "Main Menu" "menu-main-menu-1" item_ids=False %}
+</div>
+
+<div class="site-search-modal" data-search-modal aria-hidden="true">
+    <div class="site-search-modal__backdrop" data-search-close></div>
+    <div class="site-search-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="site-search-title">
+        <button type="button" class="site-search-modal__close" data-search-close aria-label="Close search">&times;</button>
+        <h2 id="site-search-title" class="site-search-modal__title">Search site</h2>
+        <form class="site-search-modal__form" role="search" method="get" action="{{ site_url }}/">
+            <input type="search" name="s" class="site-search-modal__input" placeholder="Search courses, pages, posts..." autocomplete="off" data-search-input>
+            <button type="submit" class="site-search-modal__submit">Search</button>
+        </form>
+        <div class="site-search-modal__results" data-search-results></div>
+    </div>
+</div>

@@ -1,0 +1,1 @@
+<input size="40" maxlength="{{ widget.attrs.maxlength }}" class="{{ widget.attrs.class }}"{% if widget.required %} aria-required="true"{% endif %} aria-invalid="false" placeholder="{{ widget.attrs.placeholder }}" value="{{ widget.value|default_if_none:"" }}" type="{{ widget.type }}" name="{{ widget.name }}" />

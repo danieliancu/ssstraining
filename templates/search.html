@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/search.php #}
+{% block content %}
+<div class="container-fluid category-header block-colour no-padding">
+	<div class="overlay">
+		<div class="container vertical">
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					{% if items %}
+						{% if is_product_search %}
+							<h1>Course Available for {{ search_title }}</h1>
+						{% else %}
+							<h1>
+								<b class="search-results">search results for :</b>
+								{{ search_title }}
+							</h1>
+						{% endif %}
+					{% else %}
+						<h1>Sorry, no results found</h1>
+					{% endif %}
+					{% breadcrumbs %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid post-list search-results-list">
+	<div class="container">
+		<div class="row">
+			{% if items %}
+				{% for item in items %}{% if item.product %}
+						<div class="col-xs-12">
+							<article class="search-result-item search-result-product">
+								<a class="search-result-link" href="{{ item.product.get_absolute_url }}">
+									<h3 class="search-result-title">
+										{{ item.product.title|texturize }}
+										{% if item.first_date_value %}
+											| {{ item.compact_date }}
+										{% endif %}
+									</h3>
+								</a>
+
+								<div class="search-result-details">
+									{% if item.price_text %}
+										<p><strong>Price:</strong> {{ item.price_text }}</p>
+									{% endif %}
+
+									{% if item.first_date_text %}
+										<p><strong>Date:</strong> {{ item.first_date_text }}</p>
+									{% endif %}
+
+									{% if item.venue %}
+										<p><strong>Venue:</strong> {{ item.venue }}</p>
+									{% endif %}
+
+									{% if item.spaces %}
+										<p><strong>Spaces:</strong> {{ item.spaces }}</p>
+									{% endif %}
+								</div>
+
+								<div class="search-result-actions">
+									<a href="{{ site_url }}/shop/?add-to-cart={{ item.product.wp_id|default:item.product.pk }}"
+										class="button add_to_cart_button search-result-add-to-basket">
+										Add to basket
+									</a>
+								</div>
+							</article>
+						</div>
+					{% else %}
+						<div class="col-xs-12">
+							<article class="search-result-item search-result-post">
+								<a class="search-result-link" href="{{ item.obj.get_absolute_url }}">
+									<h3 class="search-result-title">{{ item.obj.title|texturize }}</h3>
+								</a>
+								<div class="search-result-excerpt">
+									{{ item.excerpt }}
+								</div>
+							</article>
+						</div>
+					{% endif %}{% endfor %}
+
+				<div class="col-xs-12">
+					{{ paged.numeric_nav }}
+				</div>
+			{% else %}
+				<div class="col-xs-12">
+					{% include "blog/parts/content_none.html" %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}

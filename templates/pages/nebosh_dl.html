@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/page-templates/nebosh-distance-learning.php #}
+{% block content %}
+<div class="container-fluid breadcrumb-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="header-breadcrumb archive-breadcrumb">
+                    {% breadcrumbs %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid archive-top-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <h1 class="page-title"><b>{{ page.title|texturize }}</b></h1>
+
+                    <div class="content nebosh-dl-intro">
+                        {{ nebosh_dl_intro }}
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid nebosh-dl-sections" style="padding: 40px 0;">
+    <div class="container">
+
+        <div class="row" style="display:flex; flex-wrap:wrap;">
+            {% for section in nebosh_dl_sections %}
+                <div class="col-xs-12 col-sm-6 col-md-4" style="margin-bottom: 30px; display:flex;">
+                    <div class="nebosh-dl-card" style="background:#fff; border:1px solid #e0e0e0; border-radius:6px; padding:28px 24px; width:100%; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
+                        <div style="margin-bottom:14px;">
+                            <i class="fa {{ section.icon }}" style="font-size:28px; color:#57b8ff;" aria-hidden="true"></i>
+                        </div>
+                        <h3 style="font-size:17px; font-weight:700; margin-top:0; margin-bottom:12px; color:#2c2c2c;">
+                            {{ section.title }}
+                        </h3>
+                        <div style="font-size:14px; color:#555; line-height:1.7;">
+                            {{ section.content }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row" style="margin-top:20px;">
+            <div class="col-xs-12 text-center" style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+                <a href="{{ site_url }}/product-category/nebosh-construction/"
+                   class="btn btn-primary"
+                   style="background:#57b8ff; border-color:#57b8ff; padding:12px 32px; font-size:15px; font-weight:600; border-radius:4px;">
+                    Browse NEBOSH Construction
+                </a>
+                <a href="{{ site_url }}/product-category/nebosh-general-certificate/"
+                   class="btn btn-primary"
+                   style="background:#57b8ff; border-color:#57b8ff; padding:12px 32px; font-size:15px; font-weight:600; border-radius:4px;">
+                    Browse NEBOSH General Certificate
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

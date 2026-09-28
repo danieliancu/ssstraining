@@ -1,0 +1,76 @@
+{# woocommerce/templates/cart/cart.php (theme removes thumbnails) #}
+<form class="woocommerce-cart-form" action="{{ site_url }}/basket/" method="post">
+
+	<table class="shop_table shop_table_responsive cart woocommerce-cart-form__contents" cellspacing="0">
+		<thead>
+			<tr>
+				<th scope="col" class="product-remove"><span class="screen-reader-text">Remove item</span></th>
+				<th scope="col" class="product-thumbnail"><span class="screen-reader-text">Thumbnail image</span></th>
+				<th scope="col" class="product-name">Product</th>
+				<th scope="col" class="product-price">Price</th>
+				<th scope="col" class="product-quantity">Quantity</th>
+				<th scope="col" class="product-subtotal">Subtotal</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for line in totals.lines %}
+								<tr class="woocommerce-cart-form__cart-item cart_item">
+
+						<td class="product-remove">
+							<a role="button" href="{{ site_url }}/basket/?remove_item={{ line.key }}&#038;_wpnonce={{ line.nonce }}" class="remove" aria-label="Remove {{ line.product.title }} from basket" data-product_id="{{ line.product.pk }}" data-product_sku="{{ line.product.sku }}">&times;</a>						</td>
+
+						<td class="product-thumbnail">
+						<a href="{{ site_url }}{{ line.product.get_absolute_url }}"></a>						</td>
+
+						<td role="rowheader" class="product-name" data-title="Product">
+						<a href="{{ site_url }}{{ line.product.get_absolute_url }}">{{ line.product.title }}</a>						</td>
+
+						<td class="product-price" data-title="Price">
+							{{ line.unit_price|wc_price }}						</td>
+
+						<td class="product-quantity" data-title="Quantity">
+						<div class="quantity">
+		<label class="screen-reader-text" for="quantity_{{ line.qty_id }}">{{ line.product.title }} quantity</label>
+	<input
+		type="number"
+				id="quantity_{{ line.qty_id }}"
+		class="input-text qty text"
+		name="cart[{{ line.key }}][qty]"
+		value="{{ line.quantity }}"
+		aria-label="Product quantity"
+				min="0"
+					{% if line.max_qty is not None %}max="{{ line.max_qty }}"{% endif %}
+							step="1"
+			placeholder=""
+			inputmode="numeric"
+			autocomplete="off"
+			/>
+	</div>
+						</td>
+
+						<td class="product-subtotal" data-title="Subtotal">
+							{{ line.subtotal|wc_price }}						</td>
+					</tr>
+					{% endfor %}
+
+			<tr>
+				<td colspan="6" class="actions">
+
+											<div class="coupon">
+							<label for="coupon_code" class="screen-reader-text">Coupon:</label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="Coupon code" /> <button type="submit" class="button" name="apply_coupon" value="Apply coupon">Apply coupon</button>
+													</div>
+
+					<button type="submit" class="button" name="update_cart" value="Update basket">Update basket</button>
+
+
+					<input type="hidden" id="woocommerce-cart-nonce" name="woocommerce-cart-nonce" value="{{ cart_nonce }}" /><input type="hidden" name="_wp_http_referer" value="/basket/" />{% csrf_token %}				</td>
+			</tr>
+
+					</tbody>
+	</table>
+	</form>
+
+
+<div class="cart-collaterals">
+	{% include "woocommerce/cart/cart-totals.html" %}
+</div>

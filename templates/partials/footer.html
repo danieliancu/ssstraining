@@ -1,0 +1,26 @@
+{# Port of twentyseventeen-child/footer.php #}
+<footer id="colophon" class="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="footer-columns">
+                    <div class="footer-brand-column">
+                        <a href="{{ site_url }}/" id="logo-main" class="premium-logo-link">
+                            <div class="premium-text-logo">
+                                <span class="logo-top">Site Safety Training</span>
+                                <span class="logo-bottom">Consultants Limited</span>
+                            </div>
+                        </a>
+                        <p class="footer-brand-copy">
+                            Sitey Safety Courses is a reseller of accredited training courses. All courses are delivered by approved training providers and awarded by recognised accrediting bodies.
+                        </p>
+                    </div>
+
+                    <div class="footer-widget footer-menu-column">
+                        {% nav_menu "Main Menu" "menu-main-menu-2" menu_class="footer-menu" container="" depth=2 item_ids=False %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>

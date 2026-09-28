@@ -1,0 +1,33 @@
+Clona Django din __python e terminată și verificată față de WordPress-ul local. Toate cele 61 de teste trec, verificarea Django nu găsește probleme și nu lipsește nicio migrare.
+
+Cum am verificat: am cerut aceleași 1.274 de adrese (toate cele din sitemap-uri, plus coșul, checkout-ul și căutarea) de la ambele site-uri și am comparat răspunsurile. 1.262 răspund la fel. Cele 12 diferite sunt toate excluderi alese dinainte:
+
+Știrile demo: cele 5 cu text lorem ipsum trimit la /blog/news/.
+Testimonialele: cele 5 pagini nu au fost portate. Patru trimit la prima pagină, iar pagina de categorie dă 404.
+/checkout/: trimite la /checkout-2/, adică checkout-ul folosit acum pe site.
+/my-account/: contul de client nu a fost portat, așa că trimite la prima pagină.
+Cât de identice sunt paginile:
+
+Identice în conținut: prima pagină, shop-ul cu filtrele lui, categoriile, paginile NVQ și NEBOSH, blogul, știrile, cursurile, căutarea, 404 și paginile standard.
+Identice și în capturi de ecran: aproape toate, pe desktop și pe mobil. La SEO (titluri, descrieri, date structurate), sitemap-uri și robots.txt, ieșirea e aceeași cu cea din Yoast.
+Formularele de contact: răspund exact ca în WordPress. Emailurile pleacă prin Brevo, dar nu s-a trimis încă niciun email real, pentru că lipsește cheia.
+Diferențe lăsate intenționat:
+
+Prețuri: cardurile din shop și de pe paginile NVQ arată prețul fără TVA, cum ai cerut (de exemplu „£249.00 + VAT”).
+„Related courses”: pe pagina de produs se aleg la întâmplare, pe ambele site-uri.
+Avertismente PHP: WordPress le afișează pe câteva pagini, Django nu.
+Ce nu e portat încă:
+
+Scripturi lipsă: Django nu încarcă scriptul de emoji, Google Analytics (gtag), atribuirea comenzilor din WooCommerce și butoanele rapide de plată Stripe de pe pagina de produs.
+Cum verifici pagina 404: în modul de dezvoltare, Django afișează pagina lui de eroare. Pagina 404 a site-ului apare doar cu modul de depanare oprit, așa cum va fi pe server.
+Lucrări de examen: nu există niciuna în baza de date, așa că am putut verifica doar mesajul „No exam papers found.”
+Iconița site-ului (favicon.svg) lipsește și în WordPress-ul local. Am nevoie de fișier dacă vrei să apară.
+Am corectat și importul mesajelor din formulare: la toate cele 571 de mesaje, IP-ul era salvat în locul adresei paginii.
+
+Ce ai tu de făcut:
+
+Completează cheile în .env: Brevo, Stripe, datele MMC și, opțional, RECAPTCHA_SECRET_KEY.
+Schimbă secretul webhook-ului MMC, pentru că cel vechi a apărut în codul plugin-ului.
+Verifică dacă utilizatorul siteadmin_temp există pe site-ul live.
+Spune-mi dacă vrei Google Analytics 4 și îmi dai ID-ul, sau dacă trec la deploy pe Forge.
+Serverele de test sunt oprite. XAMPP rulează încă; îl poți opri dacă nu mai lucrăm azi.

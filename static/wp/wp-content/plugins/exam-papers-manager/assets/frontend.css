@@ -1,0 +1,101 @@
+.sst-epm-listing {
+	margin: 32px auto;
+	max-width: 1240px;
+	width: 100%;
+}
+
+.sst-epm-filters {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	margin-bottom: 34px;
+}
+
+.sst-epm-filters label {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.sst-epm-filters span {
+	color: #1d2736;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.sst-epm-filters select,
+.sst-epm-filters button {
+	box-sizing: border-box;
+	height: 46px;
+	width: 100%;
+}
+
+.sst-epm-filters button {
+	align-self: end;
+	background: #57b8ff;
+	border: 0;
+	color: #fff;
+	font-weight: 700;
+}
+
+.sst-epm-card-grid {
+	display: grid;
+	gap: 28px;
+	grid-auto-rows: 1fr;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.sst-epm-card {
+	background: #fff;
+	border: 1px solid #d8dde5;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	min-height: 300px;
+	padding: 28px;
+	width: 100%;
+}
+
+.sst-epm-card h3 {
+	color: #0a1f44;
+	font-size: 20px;
+	font-weight: 800;
+	line-height: 1.3;
+	margin: 0 0 16px;
+}
+
+.sst-epm-card-meta {
+	display: grid;
+	gap: 8px;
+	margin-bottom: 18px;
+}
+
+.sst-epm-card-content {
+	color: #374151;
+	flex: 1;
+	line-height: 1.65;
+}
+
+.sst-epm-download {
+	align-items: center;
+	background: #57b8ff;
+	color: #fff;
+	display: inline-flex;
+	font-weight: 700;
+	height: 44px;
+	justify-content: center;
+	margin-top: 22px;
+	padding: 0 18px;
+	text-decoration: none;
+}
+
+.sst-epm-download:hover,
+.sst-epm-download:focus {
+	background: #2d7dd2;
+	color: #fff;
+}
+
+.sst-epm-no-results {
+	grid-column: 1 / -1;
+	margin: 0;
+}

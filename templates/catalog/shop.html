@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load catalog_tags %}
+{# Port of archive-product.php (is_shop branch) + inc/custom-shop.php #}
+{% block critical_head %}{% include "catalog/critical_shop_css.html" %}{% endblock %}
+{% block dns_prefetch %}<link rel='dns-prefetch' href='//cdnjs.cloudflare.com' />
+<link rel='dns-prefetch' href='//cdn.jsdelivr.net' />
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />{% endblock %}
+{% block footer_markup %}{% include "catalog/footer_markup.html" %}{% endblock %}
+{% block content %}
+{% include "catalog/wc_wrapper_start.html" %}<nav class="woocommerce-breadcrumb" aria-label="Breadcrumb"><a href="{{ site_url }}">Home</a>&nbsp;&#47;&nbsp;{% if shop_crumb %}<a href="{{ site_url }}/shop/">Shop</a>&nbsp;&#47;&nbsp;{{ shop_crumb|safe }}{% else %}Shop{% endif %}</nav>
+<div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+                    <h1 class="page-title">{{ shop_title }}</h1>
+{% if groups %}<div class="woocommerce-notices-wrapper"></div>{% include "catalog/filter_bar.html" %}
+<div class="shop-grouped-results">{% for month_label, items in groups %}<h2 class="month-head">{{ month_label }}</h2>{% for item in items %}
+    <div class="shop-course-card">
+        <h3 class="shop-course-title">{{ item.name }}</h3>
+
+        <div class="shop-course-meta">
+            <span><strong>Price:</strong> {{ item.product|shop_card_price }}</span>
+            {% if item.start_date and item.start_date|same_day:item.end_date %}<span><strong>Date:</strong> {{ item.start_date|display_date }}</span>
+            {% elif item.start_date %}<span><strong>Start:</strong> {{ item.start_date|display_date }}</span>
+                <span><strong>End:</strong> {% if item.end_date != "" %}{{ item.end_date|display_date }}{% else %}—{% endif %}</span>
+            {% endif %}{% if item.start_time %}<span><strong>Time:</strong> {{ item.start_time }}</span>
+            {% endif %}{% if item.venue %}<span><strong>Venue:</strong> {{ item.venue }}</span>
+            {% endif %}{% if item.spaces %}<span><strong>Spaces:</strong> {{ item.spaces }}</span>
+            {% endif %}</div>
+
+        <a href="{{ site_url }}/shop/?add-to-cart={{ item.id }}"
+            class="button add_to_cart_button shop-card-button">
+            Add to basket
+        </a>
+    </div>
+    {% endfor %}{% endfor %}</div>{% else %}{% include "catalog/filter_bar.html" %}<p class="shop-empty-results">No courses found matching your criteria.</p>{% endif %}
+    </main><!-- #main -->
+</div><!-- #primary -->
+
+{% include "catalog/wc_wrapper_end.html" %}
+{% include "pages/front/trusted_carousel.html" %}
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}{% load blog_tags %}
+{# Port of archive-nebosh_course.php / archive-safety_course.php #}
+{% block content %}
+<div class="container-fluid breadbrumb-container">
+	<div class="container">
+    	<div class="row">
+
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid breadcrumb-container">
+	<div class="container">
+		<div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+             	<div class="header-breadcrumb archive-breadcrumb">
+                   	{% breadcrumbs %}
+                </div>
+            </div>
+    	</div>
+	</div>
+</div>
+
+<div class="container-fluid archive-top-block">
+	<div class="container">
+		<div class="row">
+             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <h1 class="page-title-main">
+                    <b>{{ archive_name }}</b>
+                </h1>
+                {% if kind == "nebosh" %}
+                <div class="special-offer">
+					{{ options.special_offer|acf_wysiwyg }}
+                </div>
+                {% endif %}
+             	{% if about %}
+                <div class="content">
+                {{ about|acf_wysiwyg }}
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid post-list reduce-header">
+	<div class="container">
+
+    	<div class="row cat-page-posts" id="ajax-post-container">
+
+		{% if items %}
+                {{ paged.numeric_nav }}
+				{% for item in items %}{% if kind == "nebosh" %}{% include "courses/parts/content_nebosh.html" %}{% else %}{% include "blog/parts/content_news.html" %}{% endif %}{% endfor %}
+                {{ paged.numeric_nav }}
+			{% else %}{% include "blog/parts/content_none.html" %}{% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "pages/default.html" %}
+{# checkout/thankyou.php + order/order-details.php + order-details-customer.php + MMC delegate table #}
+{% block page_body %}
+ <div class="woocommerce"><div class="woocommerce-notices-wrapper">{{ notices_html|safe }}</div>
+<div class="woocommerce-order">
+
+	{% if order.status == "failed" %}
+			<p class="woocommerce-notice woocommerce-notice--error woocommerce-thankyou-order-failed">Unfortunately your order cannot be processed as the originating bank/merchant has declined your transaction. Please attempt your purchase again.</p>
+
+			<p class="woocommerce-notice woocommerce-notice--error woocommerce-thankyou-order-failed-actions">
+				<a href="{{ site_url }}/checkout-2/" class="button pay">Pay</a>
+							</p>
+	{% else %}
+			<p class="woocommerce-notice woocommerce-notice--success woocommerce-thankyou-order-received">
+	Thank you. Your order has been received.</p>
+
+			<ul class="woocommerce-order-overview woocommerce-thankyou-order-details order_details">
+
+				<li class="woocommerce-order-overview__order order">
+					Order number:					<strong>{{ order.number }}</strong>
+				</li>
+
+				<li class="woocommerce-order-overview__date date">
+					Date:					<strong>{{ order.created_at|wp_date:"F j, Y" }}</strong>
+				</li>
+
+				<li class="woocommerce-order-overview__total total">
+					Total:					<strong>{{ order.total|wc_price }}</strong>
+				</li>
+
+				{% if order.payment_method_title %}<li class="woocommerce-order-overview__payment-method method">
+						Payment method:						<strong>{{ order.payment_method_title }}</strong>
+					</li>{% endif %}
+
+			</ul>
+	{% endif %}
+
+	<section class="woocommerce-order-details">
+
+	<h2 class="woocommerce-order-details__title">Order details</h2>
+
+	<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
+
+		<thead>
+			<tr>
+				<th class="woocommerce-table__product-name product-name">Product</th>
+				<th class="woocommerce-table__product-table product-total">Total</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{% for item in order.items.all %}<tr class="woocommerce-table__line-item order_item">
+
+	<td class="woocommerce-table__product-name product-name">
+		{% if item.product and item.product.status == "publish" %}<a href="{{ site_url }}{{ item.product.get_absolute_url }}">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %} <strong class="product-quantity">&times;&nbsp;{{ item.quantity }}</strong>	</td>
+
+	<td class="woocommerce-table__product-total product-total">
+		{{ item.line_subtotal|wc_price }}	</td>
+
+</tr>
+{% endfor %}		</tbody>
+
+		<tfoot>
+			{% for row in totals_rows %}
+					<tr>
+						<th scope="row">{{ row.label }}</th>
+						<td>{{ row.value }}</td>
+					</tr>
+					{% endfor %}
+							{% if order.customer_note %}<tr>
+					<th>Note:</th>
+					<td>{{ order.customer_note|linebreaksbr }}</td>
+				</tr>{% endif %}
+					</tfoot>
+	</table>
+
+	</section>
+
+{% if delegates and delegate_fields %}<section class="tz-mmc-delegates"><h2>Delegate Details</h2><table class="shop_table shop_table_responsive"><thead><tr><th class="delegate-number">#</th>{% for key, conf in delegate_fields.items %}<th>{{ conf.label|default:key|capfirst }}</th>{% endfor %}<th>Course Plus</th></tr></thead><tbody>{% for d in delegates %}<tr><td>{{ forloop.counter }}</td>{% for key, conf in delegate_fields.items %}<td>{% if key == "name" %}{{ d.name }}{% elif key == "email" %}{{ d.email }}{% elif key == "phone" %}{{ d.phone }}{% else %}{{ d.extra|get:key }}{% endif %}</td>{% endfor %}<td>No</td></tr>{% endfor %}</tbody></table></section>{% endif %}
+
+<section class="woocommerce-customer-details">
+
+	<h2 class="woocommerce-column__title">Billing address</h2>
+
+	<address>
+		{{ order.billing_first_name }} {{ order.billing_last_name }}{% if order.billing_company %}<br>{{ order.billing_company }}{% endif %}<br>{{ order.billing_address_1 }}{% if order.billing_address_2 %}<br>{{ order.billing_address_2 }}{% endif %}<br>{{ order.billing_city }}{% if order.billing_state %}<br>{{ order.billing_state }}{% endif %}<br>{{ order.billing_postcode }}
+
+					<p class="woocommerce-customer-details--phone">{{ order.billing_phone }}</p>
+
+					<p class="woocommerce-customer-details--email">{{ order.billing_email }}</p>
+			</address>
+
+</section>
+
+</div>
+</div>
+{% endblock %}

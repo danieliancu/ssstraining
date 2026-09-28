@@ -1,0 +1,6 @@
+{% extends "woocommerce/emails/base.html" %}
+{% block body %}
+<p>You&rsquo;ve received the following order from {{ order.billing_full_name }}:</p>
+{% include "woocommerce/emails/order-details.html" %}
+<p>Congratulations on the sale.</p>
+{% endblock %}

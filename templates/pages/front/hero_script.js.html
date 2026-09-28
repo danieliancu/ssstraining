@@ -1,0 +1,341 @@
+                    var masterMap = {{ hero_js.masterMap|safe }};
+                    var nvqLevelPages = {{ hero_js.nvqLevelPages|safe }};
+                    var nvqProductsByLevel = {{ hero_js.nvqProductsByLevel|safe }};
+                    var distanceLearningCourses = {{ hero_js.distanceLearningCourses|safe }};
+                    var distanceLearningUrl = {{ hero_js.distanceLearningUrl|safe }};
+
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var form = document.getElementById('hero-search-form');
+                        var modeRadios = document.querySelectorAll('input[name="hero_course_mode"]');
+                        var deliveryRadios = document.querySelectorAll('input[name="delivery_mode"]');
+                        var modeInput = document.getElementById('hero_search_mode');
+                        var submitButton = document.getElementById('hero-submit-button');
+                        var coursesFields = document.querySelector('[data-mode-fields="courses"]');
+                        var nvqFields = document.querySelector('[data-mode-fields="nvq"]');
+                        var refSelect = document.getElementById('select_reference');
+                        var venueSelect = document.getElementById('select_venue');
+                        var dateFromInput = document.getElementById('date_from');
+                        var venueModeInput = document.getElementById('hero_is_online');
+                        var nvqLevelSelect = document.getElementById('select_nvq_level');
+                        var nvqCourseSelect = document.getElementById('select_nvq_course');
+                        var dateWrapper = document.querySelector('.hero-date-wrapper');
+                        var standardReferenceOptions = refSelect ? refSelect.innerHTML : '';
+                        var standardVenueOptions = venueSelect ? venueSelect.innerHTML : '';
+                        var onlineVenueLabel = 'Online (Instructor-Led)';
+
+                        function setDisabled(container, disabled) {
+                            if (!container) {
+                                return;
+                            }
+
+                            container.querySelectorAll('input, select, button, textarea').forEach(function (el) {
+                                el.disabled = disabled;
+                            });
+                        }
+
+                        function getSelectedDeliveryMode() {
+                            var selected = document.querySelector('input[name="delivery_mode"]:checked');
+                            return selected ? selected.value : 'classroom';
+                        }
+
+                        function setMode(mode) {
+                            var isNvq = mode === 'nvq';
+
+                            if (modeInput) {
+                                modeInput.value = isNvq ? 'nvq' : 'courses';
+                            }
+
+                            if (coursesFields && nvqFields) {
+                                coursesFields.hidden = isNvq;
+                                nvqFields.hidden = !isNvq;
+                                setDisabled(coursesFields, isNvq);
+                                setDisabled(nvqFields, !isNvq);
+                            }
+
+                            deliveryRadios.forEach(function (radio) {
+                                radio.disabled = isNvq;
+                            });
+
+                            if (venueModeInput && isNvq) {
+                                venueModeInput.value = '';
+                            }
+
+                            if (submitButton) {
+                                submitButton.firstChild.nodeValue = isNvq ? 'Find NVQ ' : 'Find Courses ';
+                            }
+
+                            if (isNvq) {
+                                populateNvqCourses();
+                                setDistanceLearningFields(false);
+                            } else {
+                                setDeliveryMode();
+                            }
+                        }
+
+                        function setDeliveryMode() {
+                            if (modeInput && modeInput.value === 'nvq') {
+                                return;
+                            }
+
+                            var deliveryMode = getSelectedDeliveryMode();
+
+                            if (venueModeInput) {
+                                venueModeInput.value = deliveryMode === 'online' ? 'online' : '';
+                            }
+
+                            setDistanceLearningFields(deliveryMode === 'distance_learning');
+                        }
+
+                        function setDistanceLearningFields(isDistanceLearning) {
+                            if (!refSelect || !venueSelect) {
+                                return;
+                            }
+
+                            if (isDistanceLearning) {
+                                refSelect.innerHTML = '<option value="">Select Certificate</option>';
+                                distanceLearningCourses.forEach(function (course, index) {
+                                    var option = document.createElement('option');
+                                    option.value = 'distance-learning-' + String(index + 1);
+                                    option.textContent = course.label;
+                                    option.setAttribute('data-url', course.url);
+                                    refSelect.appendChild(option);
+                                });
+
+                                venueSelect.innerHTML = '<option value="Distance Learning" selected>Distance Learning</option>';
+                                venueSelect.disabled = false;
+
+                                if (dateWrapper) {
+                                    dateWrapper.hidden = true;
+                                }
+                                if (dateFromInput) {
+                                    dateFromInput.disabled = true;
+                                    dateFromInput.value = '';
+                                }
+                                return;
+                            }
+
+                            refSelect.innerHTML = standardReferenceOptions;
+                            venueSelect.innerHTML = standardVenueOptions;
+
+                            if (dateWrapper) {
+                                dateWrapper.hidden = false;
+                            }
+                            if (dateFromInput) {
+                                dateFromInput.disabled = false;
+                            }
+                        }
+
+                        function getSelectedNvqLevel() {
+                            return nvqLevelSelect ? String(nvqLevelSelect.value || '') : '';
+                        }
+
+                        function populateNvqCourses() {
+                            if (!nvqCourseSelect) {
+                                return;
+                            }
+
+                            var level = getSelectedNvqLevel();
+                            var products = level && nvqProductsByLevel[level] ? nvqProductsByLevel[level] : [];
+                            var currentValue = nvqCourseSelect.value;
+
+                            nvqCourseSelect.innerHTML = '<option value="">Select NVQ</option>';
+
+                            products.forEach(function (product) {
+                                var option = document.createElement('option');
+                                option.value = String(product.id);
+                                option.setAttribute('data-url', product.url || '');
+                                option.textContent = product.title;
+                                nvqCourseSelect.appendChild(option);
+                            });
+
+                            if (currentValue) {
+                                var stillExists = Array.prototype.slice.call(nvqCourseSelect.options).some(function (option) {
+                                    return option.value === currentValue;
+                                });
+
+                                if (stillExists) {
+                                    nvqCourseSelect.value = currentValue;
+                                }
+                            }
+                        }
+
+                        function getSelectedNvqCourseUrl() {
+                            if (!nvqCourseSelect || !nvqCourseSelect.value) {
+                                return '';
+                            }
+
+                            var selectedOption = nvqCourseSelect.options[nvqCourseSelect.selectedIndex];
+                            return selectedOption ? (selectedOption.getAttribute('data-url') || '') : '';
+                        }
+
+                        function getSelectedNvqLevelUrl() {
+                            var level = getSelectedNvqLevel();
+                            return level && nvqLevelPages[level] ? nvqLevelPages[level].url : '';
+                        }
+
+                        function toTs(value) {
+                            if (!value) {
+                                return 0;
+                            }
+
+                            var ts = new Date(value).getTime();
+                            return isNaN(ts) ? 0 : ts / 1000;
+                        }
+
+                        function hasFutureDates(list, fromTs) {
+                            if (!list || !list.length) {
+                                return false;
+                            }
+
+                            for (var i = 0; i < list.length; i++) {
+                                if (list[i] >= fromTs) {
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        }
+
+                        function isOnlineVenue(venue) {
+                            return String(venue || '').toLowerCase() === onlineVenueLabel.toLowerCase();
+                        }
+
+                        function updateCourseFilters() {
+                            if (!refSelect || !venueSelect || !dateFromInput) {
+                                return;
+                            }
+
+                            var fromTs = toTs(dateFromInput.value);
+                            var selectedRef = refSelect.value;
+                            var deliveryMode = getSelectedDeliveryMode();
+                            var isOnlineMode = deliveryMode === 'online';
+
+                            if (deliveryMode === 'distance_learning') {
+                                return;
+                            }
+
+                            var venueOptions = venueSelect.options;
+                            var allowed = {};
+
+                            if (selectedRef && masterMap[selectedRef]) {
+                                Object.keys(masterMap[selectedRef]).forEach(function (venue) {
+                                    if (isOnlineVenue(venue) === isOnlineMode && hasFutureDates(masterMap[selectedRef][venue], fromTs)) {
+                                        allowed[venue] = true;
+                                    }
+                                });
+                            } else {
+                                Object.keys(masterMap).forEach(function (refKey) {
+                                    Object.keys(masterMap[refKey]).forEach(function (venue) {
+                                        if (isOnlineVenue(venue) === isOnlineMode && hasFutureDates(masterMap[refKey][venue], fromTs)) {
+                                            allowed[venue] = true;
+                                        }
+                                    });
+                                });
+                            }
+
+                            for (var j = 1; j < venueOptions.length; j++) {
+                                var venVal = venueOptions[j].value;
+                                var venValid = !!allowed[venVal];
+                                venueOptions[j].hidden = !venValid;
+                                venueOptions[j].disabled = !venValid;
+                            }
+
+                            var currentVen = venueSelect.value;
+                            if (currentVen) {
+                                var currentOption = null;
+                                for (var l = 0; l < venueOptions.length; l++) {
+                                    if (venueOptions[l].value === currentVen) {
+                                        currentOption = venueOptions[l];
+                                        break;
+                                    }
+                                }
+                                if (!currentOption || currentOption.disabled) {
+                                    venueSelect.value = '';
+                                }
+                            }
+                        }
+
+                        modeRadios.forEach(function (radio) {
+                            radio.addEventListener('change', function () {
+                                if (this.checked) {
+                                    setMode(this.value);
+                                    updateCourseFilters();
+                                }
+                            });
+                        });
+
+                        deliveryRadios.forEach(function (radio) {
+                            radio.addEventListener('change', function () {
+                                if (this.checked) {
+                                    setDeliveryMode();
+                                    updateCourseFilters();
+                                }
+                            });
+                        });
+
+                        if (refSelect) {
+                            refSelect.addEventListener('change', updateCourseFilters);
+                        }
+
+                        if (dateFromInput) {
+                            dateFromInput.addEventListener('change', updateCourseFilters);
+                        }
+
+                        if (nvqLevelSelect) {
+                            nvqLevelSelect.addEventListener('change', function () {
+                                populateNvqCourses();
+                            });
+                        }
+
+                        if (form) {
+                            form.addEventListener('submit', function (event) {
+                                var isDistanceLearning = modeInput && modeInput.value === 'courses' && getSelectedDeliveryMode() === 'distance_learning';
+                                if (!isDistanceLearning) {
+                                    return;
+                                }
+
+                                event.preventDefault();
+                                var selectedOption = refSelect && refSelect.selectedIndex >= 0 ? refSelect.options[refSelect.selectedIndex] : null;
+                                var targetUrl = selectedOption ? (selectedOption.getAttribute('data-url') || '') : '';
+                                window.location.assign(targetUrl || distanceLearningUrl);
+                            });
+                        }
+
+                        setMode(modeInput && modeInput.value === 'nvq' ? 'nvq' : 'courses');
+                        populateNvqCourses();
+                        updateCourseFilters();
+
+                        if (form) {
+                            form.addEventListener('submit', function (event) {
+                                if (modeInput && modeInput.value === 'nvq') {
+                                    var productUrl = getSelectedNvqCourseUrl();
+                                    var levelUrl = getSelectedNvqLevelUrl();
+
+                                    if (productUrl) {
+                                        event.preventDefault();
+                                        window.location.href = productUrl;
+                                        return;
+                                    }
+
+                                    if (levelUrl) {
+                                        event.preventDefault();
+                                        window.location.href = levelUrl;
+                                        return;
+                                    }
+
+                                    event.preventDefault();
+                                    return;
+                                }
+
+                                if (!refSelect || !refSelect.value) {
+                                    refSelect && refSelect.removeAttribute('name');
+                                }
+                                if (!venueSelect || !venueSelect.value) {
+                                    venueSelect && venueSelect.removeAttribute('name');
+                                }
+                                if (!dateFromInput || !dateFromInput.value) {
+                                    dateFromInput && dateFromInput.removeAttribute('name');
+                                }
+                            });
+                        }
+                    });

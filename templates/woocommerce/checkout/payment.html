@@ -1,0 +1,22 @@
+<div id="payment" class="woocommerce-checkout-payment">
+			<ul class="wc_payment_methods payment_methods methods" aria-label="Payment methods">
+			{% if stripe_enabled %}<li class="wc_payment_method payment_method_stripe">
+	<input id="payment_method_stripe" type="radio" class="input-radio" name="payment_method" value="stripe"  checked='checked' data-order_button_text="" />
+	<label for="payment_method_stripe">
+		Card 	</label>
+			<div class="payment_box payment_method_stripe" >
+			<fieldset id="wc-stripe-upe-form" class="wc-upe-form wc-payment-form"><div class="wc-stripe-upe-element" data-payment-method-type="card"></div><div id="wc-stripe-upe-errors" role="alert"></div></fieldset>		</div>
+	</li>{% else %}<li>
+	<div class="woocommerce-info" role="status">
+		Sorry, it seems that there are no available payment methods. Please contact us if you require assistance or wish to make alternate arrangements.	</div>
+</li>{% endif %}		</ul>
+		<div class="form-row place-order">
+		<noscript>
+			Since your browser does not support JavaScript, or it is disabled, please ensure you click the <em>Update Totals</em> button before placing your order. You may be charged more than the amount stated above if you fail to do so.			<br/><button type="submit" class="button alt" name="woocommerce_checkout_update_totals" value="Update totals">Update totals</button>
+		</noscript>
+			<div class="woocommerce-terms-and-conditions-wrapper">
+		<div class="woocommerce-privacy-policy-text"></div>
+			</div>
+		<button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="Place order" data-value="Place order">Place order</button>
+		<input type="hidden" id="woocommerce-process-checkout-nonce" name="woocommerce-process-checkout-nonce" value="checkout" /><input type="hidden" name="_wp_http_referer" value="/checkout-2/" />	</div>
+</div>

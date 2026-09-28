@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/page-templates/category-page.php #}
+{% block content %}
+<div class="container-fluid standard-header-post block-colour no-padding">
+    <div class="overlay category-header-overlay">
+        <div class="vertical container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h1>{{ page.title|texturize }}</h1>
+                    {% breadcrumbs %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container-fluid standard-post reduce-header">
+    <div class="container">
+        <div class="row">
+
+            {% if content_rows %}
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                    {% for row in content_rows %}
+                        <h3 class="date-repeat-block-title">{{ row.header|safe }}</h3>
+                        {{ row.content|safe }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <div class="post-image-container">
+                    {% if page.featured_image %}
+                        <div class="featured-container category bg-contain-no-repeat"
+                            style="background-image:url('{{ page.featured_image|media_url:'news-post' }}');"></div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

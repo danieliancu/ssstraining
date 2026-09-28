@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/archive.php (author, tag, date, category and course taxonomy archives) #}
+{% block content %}
+{{ header_open }}
+    	<div class="container vertical">
+        	<div class="row">
+            	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h1>{{ archive_title }}</h1>
+                    {% breadcrumbs %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid post-list reduce-header">
+	<div class="container">
+    	<div class="row">
+		{% if items %}{% for item in items %}{% include "blog/parts/content_news.html" %}{% endfor %}
+                {{ paged.numeric_nav }}
+			{% else %}{% include "blog/parts/content_none.html" %}{% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

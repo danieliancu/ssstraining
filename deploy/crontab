@@ -1,0 +1,6 @@
+# Forge → Scheduler (run as forge). Paths assume /home/forge/sstcourses.co.uk
+*/15 * * * * cd /home/forge/sstcourses.co.uk && .venv/bin/python manage.py mmc_sync --sessions >> /dev/null 2>&1
+0 */6 * * *  cd /home/forge/sstcourses.co.uk && .venv/bin/python manage.py mmc_sync --nvq >> /dev/null 2>&1
+*/10 * * * * cd /home/forge/sstcourses.co.uk && .venv/bin/python manage.py mmc_retry_bookings >> /dev/null 2>&1
+*/5 * * * *  cd /home/forge/sstcourses.co.uk && .venv/bin/python manage.py release_stock_holds >> /dev/null 2>&1
+30 3 * * *   cd /home/forge/sstcourses.co.uk && .venv/bin/python manage.py clearsessions && .venv/bin/python manage.py mmc_prune_logs

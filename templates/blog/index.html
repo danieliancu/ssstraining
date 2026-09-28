@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{# Port of twentyseventeen-child/index.php (the posts page) #}
+{% block content %}
+<div class="wrap">
+		<header class="page-header">
+			<h1 class="page-title">{{ page_title|texturize }}</h1>
+		</header>
+
+	<div id="primary" class="content-area">
+		<main id="main" class="site-main" role="main">
+
+			{% for item in items %}{% include "blog/parts/content.html" %}{% endfor %}
+			{% if items %}{{ paged.posts_pagination }}{% else %}{% include "blog/parts/content_none.html" %}{% endif %}
+
+		</main><!-- #main -->
+	</div><!-- #primary -->
+	</div><!-- .wrap -->
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{# Port of archive-product.php (product tag branch) with content-product.php #}
+{% block footer_markup %}{% include "catalog/footer_markup.html" %}{% endblock %}
+{% block content %}
+{% include "catalog/wc_wrapper_start.html" %}<nav class="woocommerce-breadcrumb" aria-label="Breadcrumb"><a href="{{ site_url }}">Home</a>&nbsp;&#47;&nbsp;Products tagged &ldquo;{{ term.name }}&rdquo;</nav>
+<div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+                    <h1 class="page-title">{{ term.name }}</h1>
+        {% if term.description.strip %}<div class="term-description">{{ term.description|texturize|wpautop }}</div>{% endif %}
+{% if products %}<div class="woocommerce-notices-wrapper"></div><ul class="products columns-4">
+{% for p in products %}{% include "catalog/loop_product.html" with with_image=False %}{% endfor %}</ul>
+{% else %}<div class="woocommerce-no-products-found">
+	<div class="woocommerce-info" role="status">
+		No products were found matching your selection.	</div>
+</div>
+{% endif %}
+    </main><!-- #main -->
+</div><!-- #primary -->
+
+{% include "catalog/wc_wrapper_end.html" %}
+{% include "pages/front/trusted_carousel.html" %}
+{% endblock %}

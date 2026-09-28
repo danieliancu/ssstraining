@@ -1,0 +1,7 @@
+{% extends "woocommerce/emails/base.html" %}
+{% block body %}
+<p>Hi {{ order.billing_first_name }},</p>
+<p>Just to let you know &mdash; we've received your order #{{ order.number }}, and it is now being processed:</p>
+{% include "woocommerce/emails/order-details.html" %}
+<p>Thanks for using {{ site_url|cut:"https://"|cut:"http://" }}!</p>
+{% endblock %}
